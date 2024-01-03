@@ -22,9 +22,14 @@ import static org.springframework.http.HttpStatus.CREATED;
 public class UserController {
     private final UserService userService;
 
+    @PostMapping("/auth")
+    public ResponseEntity<HttpResponse> authenticateUser(String email, String password) {
+        //todo
+    }
+
     @PostMapping
-    public ResponseEntity<HttpResponse> registerUser(@RequestBody @Valid UserCreateDto user) {
-        UserReadDto userReadDto = userService.register(user);
+    public ResponseEntity<HttpResponse> createUser(@RequestBody @Valid UserCreateDto user) {
+        UserReadDto userReadDto = userService.create(user);
         userReadDto.add(
                 linkTo(UserController.class).slash(userReadDto.getId()).withSelfRel());
         return ResponseEntity.status(CREATED).body(

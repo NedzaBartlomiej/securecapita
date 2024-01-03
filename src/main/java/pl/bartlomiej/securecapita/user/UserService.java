@@ -28,7 +28,7 @@ public class UserService {
     private final VerificationRepository verificationRepository;
     private final RoleRepository roleRepository;
 
-    public UserReadDto register(UserCreateDto user) {
+    public UserReadDto create(UserCreateDto user) {
         if (userRepository.existsByEmail(user.getEmail()))
             throw new ApiException("E-mail already in use, please use another e-mail.");
         try {
