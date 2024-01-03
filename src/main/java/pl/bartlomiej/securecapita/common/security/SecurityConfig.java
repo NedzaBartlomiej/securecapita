@@ -8,11 +8,13 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import pl.bartlomiej.securecapita.common.security.handler.AccesDeniedHandlerImpl;
+import pl.bartlomiej.securecapita.common.security.handler.AuthenticationEntryPointImpl;
 
 import static org.springframework.http.HttpMethod.DELETE;
+import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -20,6 +22,8 @@ public class SecurityConfig {
 
     private static final String[] PUBLIC_ENDPOINTS = {};
     private final BCryptPasswordEncoder passwordEncoder;
+    private final AccesDeniedHandlerImpl accesDeniedHandler;
+    private final AuthenticationEntryPointImpl authenticationEntryPoint;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -27,7 +31,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
                 .sessionManagement(sessionManagementConfigurer ->
-                        sessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        sessionManagementConfigurer.sessionCreationPolicy(STATELESS))
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
                         authorizationManagerRequestMatcherRegistry
                                 .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
@@ -36,8 +40,8 @@ public class SecurityConfig {
                                 .anyRequest().authenticated())
                 .exceptionHandling(exceptionHandlingConfigurer ->
                         exceptionHandlingConfigurer
-                                .accessDeniedHandler() //todo
-                                .authenticationEntryPoint())//todo
+                                .accessDeniedHandler(accesDeniedHandler)
+                                .authenticationEntryPoint(authenticationEntryPoint))
                 .build();
     }
 
