@@ -1,4 +1,4 @@
-Project modeled (structure) and created with the help of the course: https://www.getarrays.io/courses/full-stack-spring-boot-angular-professional 
+Project modeled (structure) with the help of the course: https://www.getarrays.io/courses/full-stack-spring-boot-angular-professional 
 
 Own features: 
   - Different database model (relations, tables)
