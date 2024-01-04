@@ -20,7 +20,7 @@ public class Role {
     private Integer id;
 
     @ManyToMany
-    @JoinTable(name = "RolePermission", //todo: FIX -> hibernate generating this table name like "role_permission" <- produces error
+    @JoinTable(name = "RolePermission",
             joinColumns = @JoinColumn(name = "role_id"),
             inverseJoinColumns = @JoinColumn(name = "permission_id"))
     private List<Permission> permissions;

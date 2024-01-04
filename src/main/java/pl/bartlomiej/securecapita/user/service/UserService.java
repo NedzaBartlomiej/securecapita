@@ -1,4 +1,4 @@
-package pl.bartlomiej.securecapita.user;
+package pl.bartlomiej.securecapita.user.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pl.bartlomiej.securecapita.common.exception.ApiException;
 import pl.bartlomiej.securecapita.role.RoleRepository;
+import pl.bartlomiej.securecapita.user.User;
+import pl.bartlomiej.securecapita.user.UserRepository;
 import pl.bartlomiej.securecapita.user.dto.UserCreateDto;
 import pl.bartlomiej.securecapita.user.dto.UserDtoMapper;
 import pl.bartlomiej.securecapita.user.dto.UserReadDto;
@@ -40,7 +42,7 @@ public class UserService {
                     .user(savedUser)
                     .verificationType(EMAIL_VERIFICATION.name())
                     .verificationIdentifier(verificationUrl).build());
-//            emailService.sendVerificationEmail(savedUser.getFirstName(), savedUser.getEmail(), verificationUrl, EMAIL_VERIFICATION.name());
+//todo            emailService.sendVerificationEmail(savedUser.getFirstName(), savedUser.getEmail(), verificationUrl, EMAIL_VERIFICATION.name());
             return UserDtoMapper.map(savedUser);
         } catch (EmptyResultDataAccessException exception) {
             throw new ApiException("No role found by name: " + ROLE_USER.name());

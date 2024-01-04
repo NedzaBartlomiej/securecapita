@@ -13,16 +13,16 @@ import pl.bartlomiej.securecapita.role.Role;
 public class UserCreateDto {
     private Role role;
 
-    @NotBlank(message = "First name field cannot be empty.")
+    @NotBlank(message = "First name cannot be empty.")
     private String firstName;
 
-    @NotBlank(message = "Last name field cannot be empty.")
+    @NotBlank(message = "Last name cannot be empty.")
     private String lastName;
 
-    @NotBlank(message = "E-mail field cannot be empty.")
+    @NotBlank(message = "E-mail cannot be empty.")
     @Email(message = "E-mail should have correct form.")
     private String email;
 
-    @NotBlank(message = "Password field cannot be empty.")
+    @NotBlank(message = "Password cannot be empty.")
     private String password;
 }
