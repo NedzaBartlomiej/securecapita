@@ -15,7 +15,9 @@ import pl.bartlomiej.securecapita.user.dto.UserDtoMapper;
 import pl.bartlomiej.securecapita.user.dto.UserReadDto;
 import pl.bartlomiej.securecapita.verification.Verification;
 import pl.bartlomiej.securecapita.verification.VerificationRepository;
+import pl.bartlomiej.securecapita.verification.VerificationService;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import static pl.bartlomiej.securecapita.role.Role.RoleType.ROLE_USER;
@@ -27,7 +29,7 @@ import static pl.bartlomiej.securecapita.verification.Verification.VerificationT
 public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
-    private final VerificationRepository verificationRepository;
+    private final VerificationService verificationService;
     private final RoleRepository roleRepository;
 
     public UserReadDto create(UserCreateDto user) {
@@ -37,12 +39,7 @@ public class UserService {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             user.setRole(roleRepository.getRoleByName(ROLE_USER.name()));
             User savedUser = userRepository.save(UserDtoMapper.map(user));
-            String verificationUrl = getVerificationUrl(UUID.randomUUID().toString(), EMAIL_VERIFICATION.name().toLowerCase());
-            verificationRepository.save(Verification.builder()
-                    .user(savedUser)
-                    .verificationType(EMAIL_VERIFICATION.name())
-                    .verificationIdentifier(verificationUrl).build());
-//todo            emailService.sendVerificationEmail(savedUser.getFirstName(), savedUser.getEmail(), verificationUrl, EMAIL_VERIFICATION.name());
+            verificationService.sendVerification(savedUser, EMAIL_VERIFICATION);
             return UserDtoMapper.map(savedUser);
         } catch (EmptyResultDataAccessException exception) {
             throw new ApiException("No role found by name: " + ROLE_USER.name());
@@ -52,9 +49,7 @@ public class UserService {
         }
     }
 
-    private String getVerificationUrl(String key, String verificationType) {
-        return ServletUriComponentsBuilder.fromCurrentContextPath().path(
-                        "user/" + verificationType.toLowerCase() + "/" + key)
-                .toUriString();
+    public Optional<User> getUserByEmail(String email) {
+        return userRepository.getUserByEmail(email);
     }
 }

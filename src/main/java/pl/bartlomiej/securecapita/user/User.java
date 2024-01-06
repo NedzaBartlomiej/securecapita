@@ -46,6 +46,8 @@ public class User {
 
     private String phoneNumber;
 
+    //todo: add the phoneNumber countryCode (for SmsService functionallity)
+
     private String jobTitle;
 
     private String bio;

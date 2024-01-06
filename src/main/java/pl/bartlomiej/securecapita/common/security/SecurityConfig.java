@@ -26,7 +26,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @Configuration
 public class SecurityConfig {
 
-    private static final String[] PUBLIC_POST_ENDPOINTS = {"/securecapita-api/v1/users/auth/**"};
+    private static final String[] PUBLIC_POST_ENDPOINTS = {"/securecapita-api/v1/users/auth/**", "/securecapita-api/v1/users"};
     private final BCryptPasswordEncoder passwordEncoder;
     private final AccesDeniedHandlerImpl accesDeniedHandler;
     private final AuthenticationEntryPointImpl authenticationEntryPoint;
