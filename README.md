@@ -2,10 +2,11 @@ Project modeled (structure) with the help of the course: https://www.getarrays.i
 
 Own features: 
   - Different database model (relations, tables)
-  - using a different approach
+  - Using a different approach
   - Integration with JPA
-  - Own HATEOAS solution
+  - HATEOAS
   - Additional required logic for proprietary solutions
+  - Verification feature structure
   - SOON...
 
 Common features:
