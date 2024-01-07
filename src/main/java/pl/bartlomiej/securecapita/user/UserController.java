@@ -11,11 +11,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pl.bartlomiej.securecapita.common.exception.ApiException;
 import pl.bartlomiej.securecapita.common.model.HttpResponse;
-import pl.bartlomiej.securecapita.user.auth.AuthRequest;
+import pl.bartlomiej.securecapita.user.dto.UserAuthDto;
 import pl.bartlomiej.securecapita.user.dto.UserCreateDto;
 import pl.bartlomiej.securecapita.user.dto.UserDtoMapper;
 import pl.bartlomiej.securecapita.user.dto.UserReadDto;
-import pl.bartlomiej.securecapita.user.service.UserService;
 import pl.bartlomiej.securecapita.verification.Verification;
 import pl.bartlomiej.securecapita.verification.VerificationService;
 
@@ -34,7 +33,7 @@ public class UserController {
     private final VerificationService verificationService;
 
     @PostMapping("/auth")
-    public ResponseEntity<HttpResponse> authenticateUser(@RequestBody @Valid AuthRequest authRequest) {
+    public ResponseEntity<HttpResponse> authenticateUser(@RequestBody @Valid UserAuthDto authRequest) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.email(), authRequest.password()));
         return userService.getUserByEmail(authRequest.email())
                 .map(user ->

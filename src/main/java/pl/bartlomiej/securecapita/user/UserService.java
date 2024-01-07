@@ -1,11 +1,10 @@
-package pl.bartlomiej.securecapita.user.service;
+package pl.bartlomiej.securecapita.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pl.bartlomiej.securecapita.common.exception.ApiException;
 import pl.bartlomiej.securecapita.role.RoleRepository;
 import pl.bartlomiej.securecapita.user.User;
@@ -13,14 +12,11 @@ import pl.bartlomiej.securecapita.user.UserRepository;
 import pl.bartlomiej.securecapita.user.dto.UserCreateDto;
 import pl.bartlomiej.securecapita.user.dto.UserDtoMapper;
 import pl.bartlomiej.securecapita.user.dto.UserReadDto;
-import pl.bartlomiej.securecapita.verification.Verification;
-import pl.bartlomiej.securecapita.verification.VerificationRepository;
 import pl.bartlomiej.securecapita.verification.VerificationService;
 
 import java.util.Optional;
-import java.util.UUID;
 
-import static pl.bartlomiej.securecapita.role.Role.RoleType.ROLE_USER;
+import static pl.bartlomiej.securecapita.role.RoleType.ROLE_USER;
 import static pl.bartlomiej.securecapita.verification.Verification.VerificationType.EMAIL_VERIFICATION;
 
 @Service

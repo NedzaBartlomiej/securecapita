@@ -7,18 +7,14 @@ import pl.bartlomiej.securecapita.smsapi.SmsService;
 import pl.bartlomiej.securecapita.user.User;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.UUID;
 
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang3.time.DateFormatUtils.format;
-import static org.apache.commons.lang3.time.DateUtils.addDays;
 import static pl.bartlomiej.securecapita.verification.Verification.VerificationType.EMAIL_VERIFICATION;
 import static pl.bartlomiej.securecapita.verification.Verification.VerificationType.MFA_VERIFICATION;
 
 @Service
 public class VerificationService {
-    private static final String DATE_FORMAT = "yyyy-mm-dd hh:mm:ss";
     private final VerificationRepository verificationRepository;
     private final SmsService smsService;
 

@@ -1,4 +1,4 @@
-package pl.bartlomiej.securecapita.user.service;
+package pl.bartlomiej.securecapita.common.security;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import pl.bartlomiej.securecapita.user.dto.UserSecurityDto;
+import pl.bartlomiej.securecapita.user.UserService;
 
 @Service
 @RequiredArgsConstructor
