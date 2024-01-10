@@ -16,8 +16,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private final UserService userService;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userService.getUserByEmail(username).map(user -> {
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        return userService.getUserByEmail(email).map(user -> {
             log.info("User found in the database. class: {}, user: {}", getClass().getName(), user);
             return new UserSecurityDto(user);
         }).orElseThrow(() -> {
