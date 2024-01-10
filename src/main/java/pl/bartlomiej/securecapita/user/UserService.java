@@ -7,8 +7,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.bartlomiej.securecapita.common.exception.ApiException;
 import pl.bartlomiej.securecapita.role.RoleRepository;
-import pl.bartlomiej.securecapita.user.User;
-import pl.bartlomiej.securecapita.user.UserRepository;
 import pl.bartlomiej.securecapita.user.dto.UserCreateDto;
 import pl.bartlomiej.securecapita.user.dto.UserDtoMapper;
 import pl.bartlomiej.securecapita.user.dto.UserReadDto;
@@ -35,7 +33,7 @@ public class UserService {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             user.setRole(roleRepository.getRoleByName(ROLE_USER.name()));
             User savedUser = userRepository.save(UserDtoMapper.map(user));
-            verificationService.sendVerification(savedUser, EMAIL_VERIFICATION);
+            verificationService.handleVerification(savedUser, EMAIL_VERIFICATION);
             return UserDtoMapper.map(savedUser);
         } catch (EmptyResultDataAccessException exception) {
             throw new ApiException("No role found by name: " + ROLE_USER.name());

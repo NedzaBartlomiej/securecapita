@@ -61,7 +61,7 @@ public class UserController {
     }
 
     private ResponseEntity<HttpResponse> sendSmsVerificationCode(User user) {
-        verificationService.sendVerification(user, Verification.VerificationType.MFA_VERIFICATION);
+        verificationService.handleVerification(user, Verification.VerificationType.MFA_VERIFICATION);
         return ResponseEntity.ok(
                 HttpResponse.builder()
                         .timestamp(now().toString())

@@ -23,7 +23,7 @@ public class VerificationService {
         this.smsService = smsService;
     }
 
-    public void sendVerification(User user, Verification.VerificationType verificationType) {
+    public void handleVerification(User user, Verification.VerificationType verificationType) {
         switch (verificationType) {
             case MFA_VERIFICATION -> {
                 String code = randomAlphabetic(8).toLowerCase();
