@@ -8,6 +8,7 @@ Own features:
   - Additional required logic for proprietary solutions
   - Verification feature structure
   - Cache feature
+  - DB Migration with Liquibase
   - SOON...
 
 Common features:
