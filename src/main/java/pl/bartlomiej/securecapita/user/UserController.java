@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pl.bartlomiej.securecapita.common.exception.ApiException;
 import pl.bartlomiej.securecapita.common.model.HttpResponse;
+import pl.bartlomiej.securecapita.common.security.auth.jwt.JwtTokenService;
 import pl.bartlomiej.securecapita.user.dto.UserAuthDto;
 import pl.bartlomiej.securecapita.user.dto.UserCreateDto;
 import pl.bartlomiej.securecapita.user.dto.UserDtoMapper;
@@ -31,15 +32,17 @@ public class UserController {
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
     private final VerificationService verificationService;
+    private final JwtTokenService jwtTokenService;
 
     @PostMapping("/auth")
-    public ResponseEntity<HttpResponse> authenticateUser(@RequestBody @Valid UserAuthDto authRequest) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.email(), authRequest.password()));
-        return userService.getUserByEmail(authRequest.email())
+    public ResponseEntity<HttpResponse> authenticateUser(@RequestBody @Valid UserAuthDto userAuthDto) {
+        /*todo handle AuthenticationException*/
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userAuthDto.email(), userAuthDto.password()));
+        return userService.getUserByEmail(userAuthDto.email())
                 .map(user ->
                         user.getUsingMfa()
                                 ? sendSmsVerificationCode(user)
-                                : sendAuthResponse(UserDtoMapper.map(user)))
+                                : sendAuthResponse(user))
                 .orElseThrow(() -> new ApiException("User not found."));
     }
 
@@ -68,18 +71,22 @@ public class UserController {
                         .statusCode(OK.value())
                         .httpStatus(OK)
                         .message("Verification code sent.")
-                        .data(of("user", UserDtoMapper.map(user)))
+                        .data(of("user", UserDtoMapper.mapToReadDto(user)))
                         .build());
     }
 
-    private ResponseEntity<HttpResponse> sendAuthResponse(UserReadDto userReadDto) {
+    private ResponseEntity<HttpResponse> sendAuthResponse(User user) {
         return ResponseEntity.ok(
                 HttpResponse.builder()
                         .timestamp(now().toString())
                         .statusCode(OK.value())
                         .httpStatus(OK)
                         .message("User authenticated.")
-                        .data(of("user", userReadDto))
+                        .data(of(
+                                "user", UserDtoMapper.mapToReadDto(user),
+                                "accessToken", jwtTokenService.createAccessToken(UserDtoMapper.mapToSecurityDto(user)),
+                                "refreshToken", jwtTokenService.createRefreshToken(UserDtoMapper.mapToSecurityDto(user))
+                        ))
                         .build());
     }
 }

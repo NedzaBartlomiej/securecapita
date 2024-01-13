@@ -6,8 +6,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import pl.bartlomiej.securecapita.user.dto.UserSecurityDto;
 import pl.bartlomiej.securecapita.user.UserService;
+import pl.bartlomiej.securecapita.user.dto.UserSecurityDto;
 
 @Service
 @RequiredArgsConstructor
@@ -17,12 +17,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return userService.getUserByEmail(email).map(user -> {
-            log.info("User found in the database. class: {}, user: {}", getClass().getName(), user);
-            return new UserSecurityDto(user);
-        }).orElseThrow(() -> {
-            log.error("User not found in the database. class: {}", UserDetailsServiceImpl.class.getName());
-            return new UsernameNotFoundException("User not found in the database. class: " + getClass().getName());
-        });
+        return userService.getUserByEmail(email)
+                .map(UserSecurityDto::new)
+                .orElseThrow(() -> {
+                    log.error("User not found in the database. class: {}", UserDetailsServiceImpl.class.getName());
+                    return new UsernameNotFoundException("User not found in the database. class: " + getClass().getName());
+                });
     }
 }
