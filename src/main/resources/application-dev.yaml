@@ -1,8 +1,10 @@
+jwt:
+  secret: secret #todo: create env var in docker
 spring:
   datasource:
     url: jdbc:mysql://localhost:3307/securecapita
-    username: root
-    password: root
+    username: root #todo: create env var in docker
+    password: root #todo: create env var in docker
   jpa:
     generate-ddl: off
     show-sql: true
@@ -12,7 +14,7 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
     properties:
       hibernate:
-        globally_quoted_identifiers: true # identifiers in quotes -> if using keywords from DB, there will be no conflict
+        globally_quoted_identifiers: true
         format_sql: true
   sql:
     init:
