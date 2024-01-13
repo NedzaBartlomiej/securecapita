@@ -7,6 +7,7 @@ Own features:
   - HATEOAS
   - Additional required logic for proprietary solutions
   - Verification feature structure
+  - Cache feature
   - SOON...
 
 Common features:
