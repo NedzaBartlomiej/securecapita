@@ -9,6 +9,7 @@ Own features:
   - Verification feature structure
   - Cache feature
   - DB Migration with Liquibase
+  - SMS MFA (unique phone number validation)
   - SOON...
 
 Common features:
