@@ -32,9 +32,9 @@ public class UserService {
         try {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             user.setRole(roleRepository.getRoleByName(ROLE_USER.name()));
-            User savedUser = userRepository.save(UserDtoMapper.map(user));
+            User savedUser = userRepository.save(UserDtoMapper.mapFromCreateDto(user));
             verificationService.handleVerification(savedUser, EMAIL_VERIFICATION);
-            return UserDtoMapper.map(savedUser);
+            return UserDtoMapper.mapToReadDto(savedUser);
         } catch (EmptyResultDataAccessException exception) {
             throw new ApiException("No role found by name: " + ROLE_USER.name());
         } catch (Exception exception) {

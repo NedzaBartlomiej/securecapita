@@ -14,7 +14,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserReadDto extends RepresentationModel<UserReadDto> {
-    List<UserEvent> userEvents;
 
     private Role role;
 

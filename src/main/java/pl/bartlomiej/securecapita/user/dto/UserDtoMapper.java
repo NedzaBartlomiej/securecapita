@@ -6,21 +6,20 @@ import pl.bartlomiej.securecapita.user.User;
 
 @Component
 public class UserDtoMapper {
-    public static UserReadDto map(User user) {
+    public static UserReadDto mapToReadDto(User user) {
         UserReadDto userReadDto = new UserReadDto();
         BeanUtils.copyProperties(user, userReadDto);
         return userReadDto;
     }
 
-    public static User map(UserReadDto userReadDto) {
-        User user = new User();
-        BeanUtils.copyProperties(userReadDto, user);
-        return user;
+    public static UserSecurityDto mapToSecurityDto(User user) {
+        return new UserSecurityDto(user);
     }
 
-    public static User map(UserCreateDto userCreateDto) {
+    public static User mapFromCreateDto(UserCreateDto userCreateDto) {
         User user = new User();
         BeanUtils.copyProperties(userCreateDto, user);
         return user;
     }
+
 }
