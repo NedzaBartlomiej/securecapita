@@ -1,10 +1,10 @@
 package pl.bartlomiej.securecapita.common.security.auth.jwt;
 
 import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.exceptions.InvalidClaimException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,7 +31,7 @@ public class JwtTokenService {
     private static final String TOKEN_AUTHORITIES = "authorities";
     private static final Date ACCESS_TOKEN_EXPIRATION_DATE = new Date(currentTimeMillis() + 1_800_000L);
     private static final Date REFRESH_TOKEN_EXPIRATION_DATE = new Date(currentTimeMillis() + 432_000_000L);
-    @Value("${jwt.secret}")
+    @Value(value = "${jwt.secret}")
     private String secret;
 
     public String createAccessToken(UserSecurityDto userSecurityDto) {
@@ -56,8 +56,9 @@ public class JwtTokenService {
     }
 
     public List<SimpleGrantedAuthority> getAuthoritiesFromRequestToken(String request_token) {
-        JWTVerifier jwtVerifier = getJwtVerifier();
-        return Arrays.stream(jwtVerifier.verify(request_token).getClaim(TOKEN_AUTHORITIES).asArray(String.class))
+        return Arrays.stream(this.verify(request_token)
+                        .getClaim(TOKEN_AUTHORITIES)
+                        .asArray(String.class))
                 .map(SimpleGrantedAuthority::new).toList();
     }
 
@@ -70,7 +71,7 @@ public class JwtTokenService {
 
     public String getSubject(String token, HttpServletRequest request) {
         try {
-            return this.getJwtVerifier().verify(token).getSubject();
+            return this.verify(token).getSubject();
         } catch (TokenExpiredException exception) {
             request.setAttribute("expiredMessage", exception.getMessage());
             throw exception;
@@ -81,20 +82,18 @@ public class JwtTokenService {
     }
 
     public boolean isTokenValid(String email, String token) {
-        return isNotEmpty(email) && this.getJwtVerifier()
-                .verify(token)
+        return isNotEmpty(email) && this.verify(token)
                 .getExpiresAt().before(new Date());
     }
 
-    private JWTVerifier getJwtVerifier() {
-        JWTVerifier jwtVerifier;
+    private DecodedJWT verify(String token) throws TokenExpiredException, InvalidClaimException {
         try {
-            jwtVerifier = require(HMAC512(secret))
-                    .withIssuer(TOKEN_ISSUER).build();
-        } catch (JWTVerificationException e) {
+            return require(HMAC512(secret))
+                    .withIssuer(TOKEN_ISSUER).build()
+                    .verify(token);
+        } catch (JWTVerificationException exception) {
             throw new JWTVerificationException("JWT Token verificatinon failed.");
         }
-        return jwtVerifier;
     }
 
     private String[] getAuthoritiesClaimFromUser(UserSecurityDto userSecurityDto) {

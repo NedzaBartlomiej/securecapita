@@ -7,8 +7,8 @@ import pl.bartlomiej.securecapita.smsapi.SmsService;
 import pl.bartlomiej.securecapita.user.User;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
+import static java.util.UUID.randomUUID;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static pl.bartlomiej.securecapita.verification.Verification.VerificationType.EMAIL_VERIFICATION;
 import static pl.bartlomiej.securecapita.verification.Verification.VerificationType.MFA_VERIFICATION;
@@ -26,33 +26,39 @@ public class VerificationService {
     public void handleVerification(User user, Verification.VerificationType verificationType) {
         switch (verificationType) {
             case MFA_VERIFICATION -> {
-                String code = randomAlphabetic(8).toLowerCase();
                 verificationRepository.deleteVerificationByUserAndVerificationType(user, MFA_VERIFICATION.name());
                 verificationRepository.save(
                         Verification.builder()
                                 .user(user)
                                 .verificationType(verificationType.name())
-                                .verificationIdentifier(code)
+                                .verificationIdentifier(randomAlphabetic(8).toLowerCase())
                                 .expirationDate(LocalDateTime.now().plusHours(24))
                                 .build());
                 System.out.println("sendSms is disabled, cause: payment. Uncomment to use.");
 //                smsService.sendSms(user.getPhoneNumber(), "From: SecureCapita \nVerification code: \n" + code);
             }
             case EMAIL_VERIFICATION -> {
-                String verificationUrl = getVerificationUrl(UUID.randomUUID().toString(), EMAIL_VERIFICATION.name().toLowerCase());
+                String identifier = randomUUID().toString();
                 verificationRepository.save(Verification.builder()
                         .user(user)
                         .verificationType(EMAIL_VERIFICATION.name())
-                        .verificationIdentifier(verificationUrl).build());
-                //todo emailService.sendVerificationEmail(savedUser.getFirstName(), savedUser.getEmail(), verificationUrl, EMAIL_VERIFICATION.name());
+                        .verificationIdentifier(identifier).build());
+                //todo emailService.sendEmail(
+                // savedUser.getFirstName(),
+                // savedUser.getEmail(),
+                // this.buildVerificationUrl(identifier, EMAIL_VERIFICATION.name()),
+                // EMAIL_VERIFICATION.name());
             }
             //todo: other cases
         }
     }
 
-    private String getVerificationUrl(String key, String verificationType) {
-        return ServletUriComponentsBuilder.fromCurrentContextPath().path(
-                        "users/" + verificationType.toLowerCase() + "/" + key)
+    // auth/verifications/email_verification/{key} POST
+    private String buildVerificationUrl(String identifier, String verificationType) {
+        return ServletUriComponentsBuilder
+                .fromCurrentContextPath()
+                .path("/auth/verifications/" + verificationType.toLowerCase() + "/" + identifier)
+                .build()
                 .toUriString();
     }
 }

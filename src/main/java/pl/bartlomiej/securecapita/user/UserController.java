@@ -34,19 +34,6 @@ public class UserController {
     private final VerificationService verificationService;
     private final JwtTokenService jwtTokenService;
 
-    @PostMapping("/auth")
-    public ResponseEntity<HttpResponse> authenticateUser(@RequestBody @Valid UserAuthDto userAuthDto) {
-        /*todo handle AuthenticationException*/
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userAuthDto.email(), userAuthDto.password()));
-        return userService.getUserByEmail(userAuthDto.email())
-                .map(user ->
-                        user.getUsingMfa()
-                                ? sendSmsVerificationCode(user)
-                                : sendAuthResponse(user))
-                .orElseThrow(() -> new ApiException("User not found."));
-    }
-
-
     @PostMapping
     public ResponseEntity<HttpResponse> createUser(@RequestBody @Valid UserCreateDto user) {
         UserReadDto userReadDto = userService.create(user);
@@ -62,6 +49,23 @@ public class UserController {
                         .build()
         );
     }
+
+    @PostMapping("/auth")
+    public ResponseEntity<HttpResponse> authenticateUser(@RequestBody @Valid UserAuthDto userAuthDto) {
+        /*todo handle AuthenticationException*/
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userAuthDto.email(), userAuthDto.password()));
+        return userService.getUserByEmail(userAuthDto.email())
+                .map(user ->
+                        user.getUsingMfa()
+                                ? sendSmsVerificationCode(user)
+                                : sendAuthResponse(user))
+                .orElseThrow(() -> new ApiException("User not found."));
+    }
+
+    //todo: auth/verifications/mfa_verification/{code} POST
+
+    //todo: auth/verifications/email_verification/{key} POST
+
 
     private ResponseEntity<HttpResponse> sendSmsVerificationCode(User user) {
         verificationService.handleVerification(user, Verification.VerificationType.MFA_VERIFICATION);
