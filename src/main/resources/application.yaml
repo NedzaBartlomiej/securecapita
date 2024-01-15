@@ -1,6 +1,9 @@
 spring:
   profiles:
     active: @spring.profiles.active@
+  liquibase:
+    change-log: classpath:liquibase-changelog.yaml
+    enabled: true
 application:
   title: SecureCapita
   version: 1.0
