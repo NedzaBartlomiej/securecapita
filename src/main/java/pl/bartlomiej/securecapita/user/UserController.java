@@ -5,10 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import pl.bartlomiej.securecapita.common.exception.ApiException;
 import pl.bartlomiej.securecapita.common.model.HttpResponse;
 import pl.bartlomiej.securecapita.common.security.auth.jwt.JwtTokenService;
@@ -62,9 +59,15 @@ public class UserController {
                 .orElseThrow(() -> new ApiException("User not found."));
     }
 
-    //todo: auth/verifications/mfa_verification/{code} POST
+    //todo: replace email with id
+    @PostMapping("{email}/auth/verifications/mfa_verification/{code}")
+    public ResponseEntity<HttpResponse> authenticateMfaUser(
+            @PathVariable("email") String email, @PathVariable("code") String code) {
+        User user = userService.verifyMfaUser(email, code);
+        return sendAuthResponse(user);
+    }
 
-    //todo: auth/verifications/email_verification/{key} POST
+    //todo: {email}/auth/verifications/email_verification/{key} POST
 
 
     private ResponseEntity<HttpResponse> sendSmsVerificationCode(User user) {

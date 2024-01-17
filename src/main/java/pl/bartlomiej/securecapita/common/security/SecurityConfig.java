@@ -26,7 +26,11 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @Configuration
 public class SecurityConfig {
 
-    private static final String[] PUBLIC_POST_ENDPOINTS = {"/securecapita-api/v1/users/auth/**", "/securecapita-api/v1/users"};
+    private static final String[] PUBLIC_POST_ENDPOINTS = {
+            "/securecapita-api/v1/users/auth/**",
+            "/securecapita-api/v1/users",
+            "/securecapita-api/v1/users/*/auth/verifications/**"
+    };
     private final BCryptPasswordEncoder passwordEncoder;
     private final AccesDeniedHandlerImpl accesDeniedHandler;
     private final AuthenticationEntryPointImpl authenticationEntryPoint;
@@ -52,8 +56,6 @@ public class SecurityConfig {
                 .build();
     }
 
-    // authenticationManager.authenticate(Authentication authentication)
-    // -> return Authentication object (with this we can generate for example: JWT TOKEN)
     @Bean
     AuthenticationManager authenticationManager() {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
