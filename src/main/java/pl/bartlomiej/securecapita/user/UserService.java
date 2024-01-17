@@ -64,7 +64,7 @@ public class UserService {
                     return user;
                 })
                 .orElseThrow(() -> {
-                    if (!codeExpirationDate.isAfter(now())) {
+                    if (codeExpirationDate != null && !codeExpirationDate.isAfter(now())) {
                         verificationService.deleteVerificationByVerificationIdentifier(code);
                         return new ApiException("Provided code has expired.");
                     } else {
