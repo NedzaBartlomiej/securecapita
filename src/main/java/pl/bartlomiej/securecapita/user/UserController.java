@@ -58,16 +58,15 @@ public class UserController {
                                 : sendAuthResponse(user))
                 .orElseThrow(() -> new ApiException("User not found."));
     }
-
-    //todo: replace email with id
-    @PostMapping("{email}/auth/verifications/mfa_verification/{code}")
+    
+    @PostMapping("{id}/auth/verifications/mfa_verification/{code}")
     public ResponseEntity<HttpResponse> authenticateMfaUser(
-            @PathVariable("email") String email, @PathVariable("code") String code) {
-        User user = userService.verifyMfaUser(email, code);
+            @PathVariable("id") Long id, @PathVariable("code") String code) {
+        User user = userService.verifyMfaUser(id, code);
         return sendAuthResponse(user);
     }
 
-    //todo: {email}/auth/verifications/email_verification/{key} POST
+    //todo: {id}/auth/verifications/email_verification/{key} POST
 
 
     private ResponseEntity<HttpResponse> sendSmsVerificationCode(User user) {

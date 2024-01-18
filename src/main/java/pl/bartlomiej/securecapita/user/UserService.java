@@ -49,11 +49,11 @@ public class UserService {
         return userRepository.getUserByEmail(email);
     }
 
-    public User verifyMfaUser(String email, String code) {
+    public User verifyMfaUser(Long id, String code) {
         LocalDateTime codeExpirationDate = verificationService
                 .getExpirationDateByVerificationIdentifier(code);
 
-        User loggingInUser = userRepository.getUserByEmail(email)
+        User loggingInUser = userRepository.getUserById(id)
                 .orElseThrow(() -> new ApiException("Logging in user not found."));
 
         return verificationService.getUserByVerificationIdentifier(code)
