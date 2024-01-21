@@ -12,10 +12,6 @@ import java.util.Collection;
 public class UserSecurityDto implements UserDetails {
     private final User user;
 
-    public String getId() {
-        return user.getId().toString();
-    }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return user.getRole().getPermissions().stream().map(

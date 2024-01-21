@@ -14,10 +14,10 @@ import static com.twilio.rest.api.v2010.account.Message.creator;
 @RequiredArgsConstructor
 @Slf4j
 public class TwilioService implements SmsService {
-    public static final String FROM_NUMBER = "+12019570509";
-    public static final String CLIENT_COUNTRY_CODE = "+48";
-    public static final String SID_KEY = "AC8365fc3646ef2f831434952a4a7d0f77"; //todo: create env var in docker
-    public static final String TOKEN_KEY = "ac3cf1a0a808b07617f053bca40ad1be"; //todo: create env var in docker
+    private static final String FROM_NUMBER = "+12019570509";
+    private static final String CLIENT_COUNTRY_CODE = "+48";
+    private static final String SID_KEY = "AC8365fc3646ef2f831434952a4a7d0f77"; //todo: create env var in docker
+    private static final String TOKEN_KEY = "ac3cf1a0a808b07617f053bca40ad1be"; //todo: create env var in docker
 
     @Override
     public void sendSms(String phoneNumber, String message) {

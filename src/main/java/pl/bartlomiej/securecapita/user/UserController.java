@@ -4,7 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import pl.bartlomiej.securecapita.common.exception.ApiException;
 import pl.bartlomiej.securecapita.common.model.HttpResponse;
@@ -21,6 +21,7 @@ import static java.util.Map.of;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.security.authentication.UsernamePasswordAuthenticationToken.unauthenticated;
 
 @RequiredArgsConstructor
 @RestController
@@ -49,16 +50,15 @@ public class UserController {
 
     @PostMapping("/auth")
     public ResponseEntity<HttpResponse> authenticateUser(@RequestBody @Valid UserAuthDto userAuthDto) {
-        /*todo handle AuthenticationException*/
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userAuthDto.email(), userAuthDto.password()));
+        authenticationManager.authenticate(unauthenticated(userAuthDto.email(), userAuthDto.password()));
         return userService.getUserByEmail(userAuthDto.email())
                 .map(user ->
                         user.getUsingMfa()
-                                ? sendSmsVerificationCode(user)
+                                ? smsVerificationCodeResponseOperation(user)
                                 : sendAuthResponse(user))
                 .orElseThrow(() -> new ApiException("User not found."));
     }
-    
+
     @PostMapping("{id}/auth/verifications/mfa_verification/{code}")
     public ResponseEntity<HttpResponse> authenticateMfaUser(
             @PathVariable("id") Long id, @PathVariable("code") String code) {
@@ -68,8 +68,21 @@ public class UserController {
 
     //todo: {id}/auth/verifications/email_verification/{key} POST
 
+    @GetMapping("profile-test")
+    public ResponseEntity<HttpResponse> getAuthenticatedUser(Authentication authentication) {
+        return userService.getUserByEmail(authentication.getName())
+                .map(user ->
+                        ResponseEntity.ok(
+                                HttpResponse.builder()
+                                        .timestamp(now().toString())
+                                        .statusCode(OK.value())
+                                        .httpStatus(OK)
+                                        .data(of("user", UserDtoMapper.mapToReadDto(user)))
+                                        .build()))
+                .orElseThrow(() -> new ApiException("User not found."));
+    }
 
-    private ResponseEntity<HttpResponse> sendSmsVerificationCode(User user) {
+    private ResponseEntity<HttpResponse> smsVerificationCodeResponseOperation(User user) {
         verificationService.handleVerification(user, Verification.VerificationType.MFA_VERIFICATION);
         return ResponseEntity.ok(
                 HttpResponse.builder()

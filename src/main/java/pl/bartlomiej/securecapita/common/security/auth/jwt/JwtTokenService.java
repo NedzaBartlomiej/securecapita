@@ -40,7 +40,7 @@ public class JwtTokenService {
                 .withAudience(TOKEN_AUDIENCE)
                 .withIssuedAt(new Date())
                 .withExpiresAt(ACCESS_TOKEN_EXPIRATION_DATE)
-                .withSubject(userSecurityDto.getId())
+                .withSubject(userSecurityDto.getUsername())
                 .withArrayClaim(TOKEN_AUTHORITIES, getAuthoritiesClaimFromUser(userSecurityDto))
                 .sign(HMAC512(secret.getBytes()));
     }
@@ -51,25 +51,25 @@ public class JwtTokenService {
                 .withAudience(TOKEN_AUDIENCE)
                 .withIssuedAt(new Date())
                 .withExpiresAt(REFRESH_TOKEN_EXPIRATION_DATE)
-                .withSubject(userSecurityDto.getId())
+                .withSubject(userSecurityDto.getUsername())
                 .sign(HMAC512(secret.getBytes()));
     }
 
-    public List<SimpleGrantedAuthority> getAuthoritiesFromRequestToken(String request_token) {
-        return Arrays.stream(this.verify(request_token)
+    public List<SimpleGrantedAuthority> getAuthoritiesFromRequestToken(String requestToken) {
+        return Arrays.stream(this.verify(requestToken)
                         .getClaim(TOKEN_AUTHORITIES)
                         .asArray(String.class))
                 .map(SimpleGrantedAuthority::new).toList();
     }
 
-    public Authentication getAuthentication(String email, List<SimpleGrantedAuthority> authorities, HttpServletRequest request) {
+    public Authentication getAuthentication(String id, List<SimpleGrantedAuthority> authorities, HttpServletRequest request) {
         UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(email, null, authorities);
+                new UsernamePasswordAuthenticationToken(id, null, authorities);
         authenticationToken.setDetails(request);
         return authenticationToken;
     }
 
-    public String getSubject(String token, HttpServletRequest request) {
+    public String getSubjectFromRequestToken(String token, HttpServletRequest request) {
         try {
             return this.verify(token).getSubject();
         } catch (TokenExpiredException exception) {
@@ -83,7 +83,7 @@ public class JwtTokenService {
 
     public boolean isTokenValid(String email, String token) {
         return isNotEmpty(email) && this.verify(token)
-                .getExpiresAt().before(new Date());
+                .getExpiresAt().after(new Date());
     }
 
     private DecodedJWT verify(String token) throws TokenExpiredException, InvalidClaimException {

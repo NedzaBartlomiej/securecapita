@@ -13,11 +13,12 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import pl.bartlomiej.securecapita.common.security.filter.JwtAuthorizationFilter;
 import pl.bartlomiej.securecapita.common.security.handler.AccesDeniedHandlerImpl;
 import pl.bartlomiej.securecapita.common.security.handler.AuthenticationEntryPointImpl;
 
-import static org.springframework.http.HttpMethod.DELETE;
-import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpMethod.*;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @EnableWebSecurity
@@ -35,6 +36,7 @@ public class SecurityConfig {
     private final AccesDeniedHandlerImpl accesDeniedHandler;
     private final AuthenticationEntryPointImpl authenticationEntryPoint;
     private final UserDetailsService userDetailsService;
+    private final JwtAuthorizationFilter jwtAuthorizationFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -46,6 +48,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
                         authorizationManagerRequestMatcherRegistry
                                 .requestMatchers(POST, PUBLIC_POST_ENDPOINTS).permitAll()
+                                .requestMatchers(GET, "/securecapita-api/v1/users/**").hasAuthority("READ:USER")
+                                .requestMatchers(GET, "/securecapita-api/v1/customers/**").hasAuthority("READ:CUSTOMER")
                                 .requestMatchers(DELETE, "/securecapita-api/v1/users/**").hasAuthority("DELETE:USER")
                                 .requestMatchers(DELETE, "/securecapita-api/v1/customers/**").hasAuthority("DELETE:CUSTOMER")
                                 .anyRequest().authenticated())
@@ -53,6 +57,7 @@ public class SecurityConfig {
                         exceptionHandlingConfigurer
                                 .accessDeniedHandler(accesDeniedHandler)
                                 .authenticationEntryPoint(authenticationEntryPoint))
+                .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
