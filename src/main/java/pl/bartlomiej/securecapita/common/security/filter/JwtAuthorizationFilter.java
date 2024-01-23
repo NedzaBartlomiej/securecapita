@@ -43,10 +43,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                                         jwtTokenService.getAuthoritiesFromRequestToken(token),
                                         request
                                 ));
-                System.out.println("auth true");
             } else {
                 SecurityContextHolder.clearContext();
-                System.out.println("auth false");
+                log.info("Token validation failed.");
             }
             filterChain.doFilter(request, response);
         } catch (Exception exception) {

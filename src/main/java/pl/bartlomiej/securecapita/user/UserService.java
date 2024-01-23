@@ -49,6 +49,10 @@ public class UserService {
         return userRepository.getUserByEmail(email);
     }
 
+    public Optional<User> getUserById(Long id) {
+        return userRepository.getUserById(id);
+    }
+
     public User verifyMfaUser(Long id, String code) {
         LocalDateTime codeExpirationDate = verificationService
                 .getExpirationDateByVerificationIdentifier(code);

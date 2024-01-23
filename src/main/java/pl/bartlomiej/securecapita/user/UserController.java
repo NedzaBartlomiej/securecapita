@@ -68,17 +68,25 @@ public class UserController {
 
     //todo: {id}/auth/verifications/email_verification/{key} POST
 
-    @GetMapping("profile-test")
-    public ResponseEntity<HttpResponse> getAuthenticatedUser(Authentication authentication) {
-        return userService.getUserByEmail(authentication.getName())
-                .map(user ->
-                        ResponseEntity.ok(
+    @GetMapping("/{id}")
+    public ResponseEntity<HttpResponse> getAuthenticatedUser(@PathVariable("id") Long id, Authentication authentication) {
+        User authenticatedUser = userService.getUserByEmail(authentication.getName())
+                .orElseThrow(() -> new ApiException("User not found."));
+
+        return userService.getUserById(id)
+                .map(user -> {
+                    if (!user.equals(authenticatedUser)) {
+                        throw new ApiException("You try to access not your account resorces.");
+                    } else {
+                        return ResponseEntity.ok(
                                 HttpResponse.builder()
                                         .timestamp(now().toString())
                                         .statusCode(OK.value())
                                         .httpStatus(OK)
                                         .data(of("user", UserDtoMapper.mapToReadDto(user)))
-                                        .build()))
+                                        .build());
+                    }
+                })
                 .orElseThrow(() -> new ApiException("User not found."));
     }
 
