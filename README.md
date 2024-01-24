@@ -10,6 +10,7 @@ Own features:
   - Cache feature
   - DB Migration with Liquibase
   - SMS MFA (unique phone number validation)
+  - Independent exception handling
   - SOON...
 
 Common features:
