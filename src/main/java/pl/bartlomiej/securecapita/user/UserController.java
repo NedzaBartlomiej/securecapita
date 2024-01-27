@@ -32,6 +32,8 @@ public class UserController {
     private final VerificationService verificationService;
     private final JwtTokenService jwtTokenService;
 
+    // todo: HATEOAS - add link object for UserNotFoundException -> createUser {href, method}
+
     @PostMapping
     public ResponseEntity<HttpResponse> createUser(@RequestBody @Valid UserCreateDto user) {
         UserReadDto userReadDto = userService.create(user);
@@ -62,8 +64,8 @@ public class UserController {
     @PostMapping("{id}/auth/verifications/mfa_verification/{code}")
     public ResponseEntity<HttpResponse> authenticateMfaUser(
             @PathVariable("id") Long id, @PathVariable("code") String code) {
-        User user = userService.verifyMfaUser(id, code);
-        return sendAuthResponse(user);
+        return sendAuthResponse(
+                userService.verifyMfaUser(id, code));
     }
 
     //todo: {id}/auth/verifications/email_verification/{key} POST
@@ -103,6 +105,7 @@ public class UserController {
     }
 
     private ResponseEntity<HttpResponse> sendAuthResponse(User user) {
+        // todo: HATEOAS - add link to selfRel (authenticated user)
         return ResponseEntity.ok(
                 HttpResponse.builder()
                         .timestamp(now().toString())

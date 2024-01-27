@@ -1,9 +1,7 @@
 package pl.bartlomiej.securecapita.common.security.auth.jwt;
 
 import com.auth0.jwt.JWT;
-import com.auth0.jwt.exceptions.InvalidClaimException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
@@ -70,15 +68,7 @@ public class JwtTokenService {
     }
 
     public String getSubjectFromRequestToken(String token, HttpServletRequest request) {
-        try {
-            return this.verify(token).getSubject();
-        } catch (TokenExpiredException exception) {
-            request.setAttribute("expiredMessage", exception.getMessage());
-            throw exception;
-        } catch (InvalidClaimException exception) {
-            request.setAttribute("invalidClaimMessage", exception.getMessage());
-            throw exception;
-        }
+        return this.verify(token).getSubject();
     }
 
     public boolean isTokenValid(String email, String token) {
@@ -86,14 +76,10 @@ public class JwtTokenService {
                 .getExpiresAt().after(new Date());
     }
 
-    private DecodedJWT verify(String token) throws TokenExpiredException, InvalidClaimException {
-        try {
-            return require(HMAC512(secret))
-                    .withIssuer(TOKEN_ISSUER).build()
-                    .verify(token);
-        } catch (JWTVerificationException exception) {
-            throw new JWTVerificationException("JWT Token verificatinon failed.");
-        }
+    private DecodedJWT verify(String token) throws JWTVerificationException {
+        return require(HMAC512(secret))
+                .withIssuer(TOKEN_ISSUER).build()
+                .verify(token);
     }
 
     private String[] getAuthoritiesClaimFromUser(UserSecurityDto userSecurityDto) {
