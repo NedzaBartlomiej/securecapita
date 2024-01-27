@@ -48,6 +48,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
                         authorizationManagerRequestMatcherRegistry
                                 .requestMatchers(POST, PUBLIC_POST_ENDPOINTS).permitAll()
+                                .requestMatchers("/error").permitAll()
                                 .requestMatchers(GET, "/securecapita-api/v1/users/**").hasAuthority("READ:USER")
                                 .requestMatchers(GET, "/securecapita-api/v1/customers/**").hasAuthority("READ:CUSTOMER")
                                 .requestMatchers(DELETE, "/securecapita-api/v1/users/**").hasAuthority("DELETE:USER")
