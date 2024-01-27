@@ -7,6 +7,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import pl.bartlomiej.securecapita.common.exception.ApiException;
+import pl.bartlomiej.securecapita.common.exception.UserNotFoundException;
 import pl.bartlomiej.securecapita.common.model.HttpResponse;
 import pl.bartlomiej.securecapita.common.security.auth.jwt.JwtTokenService;
 import pl.bartlomiej.securecapita.user.dto.UserAuthDto;
@@ -58,7 +59,7 @@ public class UserController {
                         user.getUsingMfa()
                                 ? smsVerificationCodeResponseOperation(user)
                                 : sendAuthResponse(user))
-                .orElseThrow(() -> new ApiException("User not found."));
+                .orElseThrow(UserNotFoundException::new);
     }
 
     @PostMapping("{id}/auth/verifications/mfa_verification/{code}")
@@ -73,7 +74,7 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<HttpResponse> getAuthenticatedUser(@PathVariable("id") Long id, Authentication authentication) {
         User authenticatedUser = userService.getUserByEmail(authentication.getName())
-                .orElseThrow(() -> new ApiException("User not found."));
+                .orElseThrow(UserNotFoundException::new);
 
         return userService.getUserById(id)
                 .map(user -> {
@@ -89,7 +90,7 @@ public class UserController {
                                         .build());
                     }
                 })
-                .orElseThrow(() -> new ApiException("User not found."));
+                .orElseThrow(UserNotFoundException::new);
     }
 
     private ResponseEntity<HttpResponse> smsVerificationCodeResponseOperation(User user) {

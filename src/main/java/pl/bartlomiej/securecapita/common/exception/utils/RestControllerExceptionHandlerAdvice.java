@@ -1,4 +1,4 @@
-package pl.bartlomiej.securecapita.common.exception;
+package pl.bartlomiej.securecapita.common.exception.utils;
 
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 

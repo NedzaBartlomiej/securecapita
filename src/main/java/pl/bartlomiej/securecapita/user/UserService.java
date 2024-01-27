@@ -5,7 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import pl.bartlomiej.securecapita.common.exception.AccountVerificationException;
 import pl.bartlomiej.securecapita.common.exception.ApiException;
+import pl.bartlomiej.securecapita.common.exception.UserNotFoundException;
 import pl.bartlomiej.securecapita.role.RoleRepository;
 import pl.bartlomiej.securecapita.user.dto.UserCreateDto;
 import pl.bartlomiej.securecapita.user.dto.UserDtoMapper;
@@ -58,7 +60,7 @@ public class UserService {
                 .getExpirationDateByVerificationIdentifier(code);
 
         User loggingInUser = userRepository.getUserById(id)
-                .orElseThrow(() -> new ApiException("Logging in user not found."));
+                .orElseThrow(UserNotFoundException::new);
 
         return verificationService.getUserByVerificationIdentifier(code)
                 .filter(user -> user.equals(loggingInUser))
@@ -70,9 +72,9 @@ public class UserService {
                 .orElseThrow(() -> {
                     if (codeExpirationDate != null && !codeExpirationDate.isAfter(now())) {
                         verificationService.deleteVerificationByVerificationIdentifier(code);
-                        return new ApiException("Provided code has expired.");
+                        return new AccountVerificationException("Provided code has expired.");
                     } else {
-                        return new ApiException("Provided code is invalid.");
+                        return new AccountVerificationException("Provided code is invalid.");
                     }
                 });
     }

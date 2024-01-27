@@ -17,7 +17,7 @@ import static java.util.stream.Stream.ofNullable;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpMethod.OPTIONS;
-import static pl.bartlomiej.securecapita.common.exception.ExceptionUtils.processException;
+import static pl.bartlomiej.securecapita.common.exception.utils.ExceptionUtils.processException;
 
 @RequiredArgsConstructor
 @Slf4j

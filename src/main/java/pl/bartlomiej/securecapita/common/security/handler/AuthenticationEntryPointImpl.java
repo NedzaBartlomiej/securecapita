@@ -6,7 +6,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
-import static pl.bartlomiej.securecapita.common.exception.ExceptionUtils.processException;
+import static pl.bartlomiej.securecapita.common.exception.utils.ExceptionUtils.processException;
 
 @Component
 public class AuthenticationEntryPointImpl implements AuthenticationEntryPoint {

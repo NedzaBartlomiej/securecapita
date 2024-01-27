@@ -1,4 +1,4 @@
-package pl.bartlomiej.securecapita.common.exception;
+package pl.bartlomiej.securecapita.common.exception.utils;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.fasterxml.jackson.databind.ObjectMapper;

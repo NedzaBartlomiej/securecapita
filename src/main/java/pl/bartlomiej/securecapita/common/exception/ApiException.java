@@ -5,5 +5,3 @@ public class ApiException extends RuntimeException {
         super(message);
     }
 }
-
-// todo: create more precise exceptions by messages in thrown ApiException

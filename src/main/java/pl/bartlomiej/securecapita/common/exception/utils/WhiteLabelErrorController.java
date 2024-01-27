@@ -1,4 +1,4 @@
-package pl.bartlomiej.securecapita.common.exception;
+package pl.bartlomiej.securecapita.common.exception.utils;
 
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.ResponseEntity;
