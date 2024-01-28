@@ -1,4 +1,4 @@
-package pl.bartlomiej.securecapita.common.security.filter;
+package pl.bartlomiej.securecapita.common.security.auth.jwt;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import jakarta.servlet.FilterChain;
