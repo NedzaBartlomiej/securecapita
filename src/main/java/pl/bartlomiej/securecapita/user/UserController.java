@@ -20,6 +20,7 @@ import pl.bartlomiej.securecapita.verification.VerificationService;
 import static java.time.LocalDateTime.now;
 import static java.util.Map.of;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.security.authentication.UsernamePasswordAuthenticationToken.unauthenticated;
 
@@ -32,26 +33,20 @@ public class UserController {
     private final VerificationService verificationService;
     private final JwtTokenService jwtTokenService;
 
-    // todo: HATEOAS - add link object for UserNotFoundException -> createUser {href, method}
-
     @PostMapping
     public ResponseEntity<HttpResponse> createUser(@RequestBody @Valid UserCreateDto user) {
         UserReadDto userReadDto = userService.create(user);
-        userReadDto.add(
-                linkTo(UserController.class).slash(userReadDto.getId()).withSelfRel());
         return ResponseEntity.status(CREATED).body(
                 HttpResponse.builder()
                         .timestamp(now().toString())
                         .statusCode(CREATED.value())
                         .httpStatus(CREATED)
                         .message("User registered.")
-                        .data(of("user", userReadDto))
+                        .data(of("user", this.addUserSelfRelLink(userReadDto)))
                         .build()
         );
     }
 
-
-    // todo: HATEOAS for auth endpoints
     @PostMapping("/auth")
     public ResponseEntity<HttpResponse> authenticateUser(@RequestBody @Valid UserAuthDto userAuthDto) {
         authenticationManager.authenticate(unauthenticated(userAuthDto.email(), userAuthDto.password()));
@@ -107,7 +102,7 @@ public class UserController {
     }
 
     private ResponseEntity<HttpResponse> sendAuthResponse(User user) {
-        // todo: HATEOAS - add link to selfRel (authenticated user)
+        UserReadDto userReadDto = UserDtoMapper.mapToReadDto(user);
         return ResponseEntity.ok(
                 HttpResponse.builder()
                         .timestamp(now().toString())
@@ -115,10 +110,17 @@ public class UserController {
                         .httpStatus(OK)
                         .message("User authenticated.")
                         .data(of(
-                                "user", UserDtoMapper.mapToReadDto(user),
+                                "user", this.addUserSelfRelLink(userReadDto),
                                 "accessToken", jwtTokenService.createAccessToken(UserDtoMapper.mapToSecurityDto(user)),
                                 "refreshToken", jwtTokenService.createRefreshToken(UserDtoMapper.mapToSecurityDto(user))
                         ))
                         .build());
+    }
+
+    private UserReadDto addUserSelfRelLink(UserReadDto userReadDto) {
+        return userReadDto.add(
+                linkTo(UserController.class).slash(userReadDto.getId())
+                        .withSelfRel()
+                        .withType(GET.name()));
     }
 }
