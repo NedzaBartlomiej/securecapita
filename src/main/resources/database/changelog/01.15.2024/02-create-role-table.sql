@@ -1,8 +1,6 @@
 --liquibase formatted sql
 
 --changeset bnedza:2
-DROP TABLE IF EXISTS role;
-
 CREATE TABLE role
 (
     id   INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,

@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import pl.bartlomiej.securecapita.smsapi.SmsService;
+import pl.bartlomiej.securecapita.sms.SmsService;
 import pl.bartlomiej.securecapita.user.User;
 
 import java.time.LocalDateTime;
@@ -40,7 +40,7 @@ public class VerificationService {
                                 .build());
                 System.out.println("sendSms is disabled, cause: payment. Uncomment to use.");
                 log.info("From: SecureCapita | Verification code: {}", verificationCode);
-//                smsService.sendSms(user.getPhoneNumber(), "From: SecureCapita \nVerification code: \n" + verificationCode);
+//                smsService.sendSms(user.getPhone().getCountryPrefix(), user.getPhone().getPhoneNumber(), "From: SecureCapita \nVerification code: \n" + verificationCode);
             }
             case EMAIL_VERIFICATION -> {
                 String identifier = randomUUID().toString();

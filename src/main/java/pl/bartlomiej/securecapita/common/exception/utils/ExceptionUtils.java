@@ -34,6 +34,7 @@ public class ExceptionUtils {
                     getErrorHttpResponse(INTERNAL_SERVER_ERROR, "An error occured, try again."));
             log.error("Unhandled error message: {}", exception.getMessage());
         }
+        //todo: add invalid credentials exception handling from AuthEx inheritors
     }
 
     public static HttpResponse getErrorHttpResponse(HttpStatus httpStatus, String message) {

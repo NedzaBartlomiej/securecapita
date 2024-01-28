@@ -2,11 +2,10 @@ package pl.bartlomiej.securecapita.user.dto;
 
 import lombok.*;
 import org.springframework.hateoas.RepresentationModel;
-import pl.bartlomiej.securecapita.event.UserEvent;
-import pl.bartlomiej.securecapita.role.Role;
+import pl.bartlomiej.securecapita.user.phone.Phone;
+import pl.bartlomiej.securecapita.user.role.Role;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @Setter
@@ -27,7 +26,7 @@ public class UserReadDto extends RepresentationModel<UserReadDto> {
 
     private String address;
 
-    private String phoneNumber;
+    private Phone phone;
 
     private String jobTitle;
 

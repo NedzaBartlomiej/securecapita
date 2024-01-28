@@ -49,7 +49,7 @@ public class UserController {
 
     @PostMapping("/auth")
     public ResponseEntity<HttpResponse> authenticateUser(@RequestBody @Valid UserAuthDto userAuthDto) {
-        authenticationManager.authenticate(unauthenticated(userAuthDto.email(), userAuthDto.password()));
+        authenticationManager.authenticate(unauthenticated(userAuthDto.email(), userAuthDto.password())); // przeanalizowac metode authenticate i unauth...
         return userService.getUserByEmail(userAuthDto.email())
                 .map(user ->
                         user.getUsingMfa()

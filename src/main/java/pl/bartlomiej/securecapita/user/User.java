@@ -4,7 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
-import pl.bartlomiej.securecapita.role.Role;
+import pl.bartlomiej.securecapita.user.phone.Phone;
+import pl.bartlomiej.securecapita.user.role.Role;
 
 import java.time.LocalDateTime;
 
@@ -41,9 +42,9 @@ public class User {
 
     private String address;
 
-    private String phoneNumber;
-
-    //todo: add the phoneNumber countryCode (for SmsService functionallity)
+    @OneToOne
+    @JoinColumn(name = "phone_id", referencedColumnName = "id")
+    private Phone phone;
 
     private String jobTitle;
 

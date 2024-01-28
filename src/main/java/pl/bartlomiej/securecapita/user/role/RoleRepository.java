@@ -1,4 +1,4 @@
-package pl.bartlomiej.securecapita.role;
+package pl.bartlomiej.securecapita.user.role;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
