@@ -1,4 +1,4 @@
-package pl.bartlomiej.securecapita.user.phone;
+package pl.bartlomiej.securecapita.user.nestedentity.role.permission;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -14,13 +14,10 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Phone {
-
+public class Permission {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Integer id;
 
-    private String countryPrefix;
-
-    private String phoneNumber;
+    private String name;
 }

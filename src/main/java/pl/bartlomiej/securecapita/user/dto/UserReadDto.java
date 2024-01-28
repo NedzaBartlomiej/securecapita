@@ -2,8 +2,8 @@ package pl.bartlomiej.securecapita.user.dto;
 
 import lombok.*;
 import org.springframework.hateoas.RepresentationModel;
-import pl.bartlomiej.securecapita.user.phone.Phone;
-import pl.bartlomiej.securecapita.user.role.Role;
+import pl.bartlomiej.securecapita.user.nestedentity.phone.Phone;
+import pl.bartlomiej.securecapita.user.nestedentity.role.Role;
 
 import java.time.LocalDateTime;
 

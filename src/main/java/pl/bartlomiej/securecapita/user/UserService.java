@@ -9,7 +9,7 @@ import pl.bartlomiej.securecapita.common.exception.AccountVerificationException;
 import pl.bartlomiej.securecapita.common.exception.ApiException;
 import pl.bartlomiej.securecapita.common.exception.ResourceNotFoundException;
 import pl.bartlomiej.securecapita.common.exception.UserNotFoundException;
-import pl.bartlomiej.securecapita.user.role.RoleRepository;
+import pl.bartlomiej.securecapita.user.nestedentity.role.RoleRepository;
 import pl.bartlomiej.securecapita.user.dto.UserCreateDto;
 import pl.bartlomiej.securecapita.user.dto.UserDtoMapper;
 import pl.bartlomiej.securecapita.user.dto.UserReadDto;
@@ -21,7 +21,7 @@ import java.util.Optional;
 import static java.time.LocalDateTime.now;
 import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static pl.bartlomiej.securecapita.user.role.RoleType.ROLE_USER;
+import static pl.bartlomiej.securecapita.user.nestedentity.role.RoleType.ROLE_USER;
 import static pl.bartlomiej.securecapita.verification.Verification.VerificationType.EMAIL_VERIFICATION;
 
 @Service

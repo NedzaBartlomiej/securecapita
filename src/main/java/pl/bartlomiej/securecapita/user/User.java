@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
-import pl.bartlomiej.securecapita.user.phone.Phone;
-import pl.bartlomiej.securecapita.user.role.Role;
+import pl.bartlomiej.securecapita.user.nestedentity.phone.Phone;
+import pl.bartlomiej.securecapita.user.nestedentity.role.Role;
 
 import java.time.LocalDateTime;
 

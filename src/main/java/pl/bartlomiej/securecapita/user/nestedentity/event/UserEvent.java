@@ -1,4 +1,4 @@
-package pl.bartlomiej.securecapita.event;
+package pl.bartlomiej.securecapita.user.nestedentity.event;
 
 import jakarta.persistence.*;
 import lombok.*;

@@ -1,8 +1,8 @@
-package pl.bartlomiej.securecapita.user.role;
+package pl.bartlomiej.securecapita.user.nestedentity.role;
 
 import jakarta.persistence.*;
 import lombok.*;
-import pl.bartlomiej.securecapita.user.role.permission.Permission;
+import pl.bartlomiej.securecapita.user.nestedentity.role.permission.Permission;
 
 import java.util.List;
 

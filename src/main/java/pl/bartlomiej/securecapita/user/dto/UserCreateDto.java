@@ -3,7 +3,7 @@ package pl.bartlomiej.securecapita.user.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
-import pl.bartlomiej.securecapita.user.role.Role;
+import pl.bartlomiej.securecapita.user.nestedentity.role.Role;
 
 @Getter
 @Setter
