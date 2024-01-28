@@ -8,6 +8,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import pl.bartlomiej.securecapita.common.model.HttpResponse;
 
@@ -23,6 +24,9 @@ public class ExceptionUtils {
         if (exception instanceof AccessDeniedException) {
             writeResponse(response,
                     getErrorHttpResponse(FORBIDDEN, "You don't have the required permissions."));
+        } else if (exception instanceof BadCredentialsException) {
+            writeResponse(response,
+                    getErrorHttpResponse(UNAUTHORIZED, "Bad authentication credentials."));
         } else if (exception instanceof AuthenticationException) {
             writeResponse(response,
                     getErrorHttpResponse(UNAUTHORIZED, "You need to authenticate to access this resource."));
@@ -32,9 +36,8 @@ public class ExceptionUtils {
         } else {
             writeResponse(response,
                     getErrorHttpResponse(INTERNAL_SERVER_ERROR, "An error occured, try again."));
-            log.error("Unhandled error message: {}", exception.getMessage());
+            log.error("Unhandled error message: {}, Exception {}", exception.getMessage(), exception.getClass().getName());
         }
-        //todo: add invalid credentials exception handling from AuthEx inheritors
     }
 
     public static HttpResponse getErrorHttpResponse(HttpStatus httpStatus, String message) {
