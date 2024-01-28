@@ -7,6 +7,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.bartlomiej.securecapita.common.exception.AccountVerificationException;
 import pl.bartlomiej.securecapita.common.exception.ApiException;
+import pl.bartlomiej.securecapita.common.exception.ResourceNotFoundException;
 import pl.bartlomiej.securecapita.common.exception.UserNotFoundException;
 import pl.bartlomiej.securecapita.role.RoleRepository;
 import pl.bartlomiej.securecapita.user.dto.UserCreateDto;
@@ -18,6 +19,8 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static java.time.LocalDateTime.now;
+import static org.springframework.http.HttpStatus.CONFLICT;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static pl.bartlomiej.securecapita.role.RoleType.ROLE_USER;
 import static pl.bartlomiej.securecapita.verification.Verification.VerificationType.EMAIL_VERIFICATION;
 
@@ -32,7 +35,7 @@ public class UserService {
 
     public UserReadDto create(UserCreateDto user) {
         if (userRepository.existsByEmail(user.getEmail()))
-            throw new ApiException("E-mail already in use, please use another e-mail.");
+            throw new ApiException("E-mail already in use, please use another e-mail.", CONFLICT);
         try {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             user.setRole(roleRepository.getRoleByName(ROLE_USER.name()));
@@ -40,10 +43,10 @@ public class UserService {
             verificationService.handleVerification(savedUser, EMAIL_VERIFICATION);
             return UserDtoMapper.mapToReadDto(savedUser);
         } catch (EmptyResultDataAccessException exception) {
-            throw new ApiException("No role found by name: " + ROLE_USER.name());
+            throw new ResourceNotFoundException();
         } catch (Exception exception) {
             log.error(exception.getMessage());
-            throw new ApiException("An error occured.");
+            throw new ApiException("An error occured.", INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -68,14 +71,6 @@ public class UserService {
                 .map(user -> {
                     verificationService.deleteVerificationByVerificationIdentifier(code);
                     return user;
-                })
-                .orElseThrow(() -> {
-                    if (codeExpirationDate != null && !codeExpirationDate.isAfter(now())) {
-                        verificationService.deleteVerificationByVerificationIdentifier(code);
-                        return new AccountVerificationException("Provided code has expired.");
-                    } else {
-                        return new AccountVerificationException("Provided code is invalid.");
-                    }
-                });
+                }).orElseThrow(AccountVerificationException::new);
     }
 }

@@ -1,7 +1,15 @@
 package pl.bartlomiej.securecapita.common.exception;
 
+import lombok.Getter;
+import org.springframework.http.HttpStatus;
+
+@Getter
 public class ApiException extends RuntimeException {
-    public ApiException(String message) {
+
+    private final HttpStatus httpStatus;
+
+    public ApiException(String message, HttpStatus httpStatus) {
         super(message);
+        this.httpStatus = httpStatus;
     }
 }

@@ -59,6 +59,8 @@ public class SecurityConfig {
                                 .accessDeniedHandler(accesDeniedHandler)
                                 .authenticationEntryPoint(authenticationEntryPoint))
                 .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .logout(AbstractHttpConfigurer::disable)
                 .build();
     }
 

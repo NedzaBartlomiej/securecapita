@@ -20,8 +20,7 @@ import pl.bartlomiej.securecapita.verification.VerificationService;
 import static java.time.LocalDateTime.now;
 import static java.util.Map.of;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.*;
 import static org.springframework.security.authentication.UsernamePasswordAuthenticationToken.unauthenticated;
 
 @RequiredArgsConstructor
@@ -51,6 +50,8 @@ public class UserController {
         );
     }
 
+
+    // todo: HATEOAS for auth endpoints
     @PostMapping("/auth")
     public ResponseEntity<HttpResponse> authenticateUser(@RequestBody @Valid UserAuthDto userAuthDto) {
         authenticationManager.authenticate(unauthenticated(userAuthDto.email(), userAuthDto.password()));
@@ -79,7 +80,7 @@ public class UserController {
         return userService.getUserById(id)
                 .map(user -> {
                     if (!user.equals(authenticatedUser)) {
-                        throw new ApiException("You try to access not your account resorces.");
+                        throw new ApiException("You try to access not your account resorces.", FORBIDDEN);
                     } else {
                         return ResponseEntity.ok(
                                 HttpResponse.builder()

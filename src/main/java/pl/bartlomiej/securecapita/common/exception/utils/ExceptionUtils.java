@@ -22,21 +22,21 @@ public class ExceptionUtils {
     public static void processException(Exception exception, HttpServletRequest ignoredRequest, HttpServletResponse response) {
         if (exception instanceof AccessDeniedException) {
             writeResponse(response,
-                    getHttpResponse(FORBIDDEN, "You don't have the required permissions."));
+                    getErrorHttpResponse(FORBIDDEN, "You don't have the required permissions."));
         } else if (exception instanceof AuthenticationException) {
             writeResponse(response,
-                    getHttpResponse(UNAUTHORIZED, "You need to authenticate to access this resource."));
+                    getErrorHttpResponse(UNAUTHORIZED, "You need to authenticate to access this resource."));
         } else if (exception instanceof JWTVerificationException) {
             writeResponse(response,
-                    getHttpResponse(UNAUTHORIZED, "Invalid authorization token."));
+                    getErrorHttpResponse(UNAUTHORIZED, "Invalid authorization token."));
         } else {
             writeResponse(response,
-                    getHttpResponse(INTERNAL_SERVER_ERROR, "An error occured, try again."));
+                    getErrorHttpResponse(INTERNAL_SERVER_ERROR, "An error occured, try again."));
             log.error("Unhandled error message: {}", exception.getMessage());
         }
     }
 
-    private static HttpResponse getHttpResponse(HttpStatus httpStatus, String message) {
+    public static HttpResponse getErrorHttpResponse(HttpStatus httpStatus, String message) {
         return HttpResponse.builder()
                 .timestamp(now().toString())
                 .statusCode(httpStatus.value())
