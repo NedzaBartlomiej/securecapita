@@ -3,17 +3,14 @@ package pl.bartlomiej.securecapita.user;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import pl.bartlomiej.securecapita.common.exception.ApiException;
 import pl.bartlomiej.securecapita.common.exception.UserNotFoundException;
 import pl.bartlomiej.securecapita.common.model.HttpResponse;
+import pl.bartlomiej.securecapita.common.security.auth.AuthenticationService;
 import pl.bartlomiej.securecapita.common.security.auth.jwt.JwtTokenService;
-import pl.bartlomiej.securecapita.user.dto.UserAuthDto;
-import pl.bartlomiej.securecapita.user.dto.UserCreateDto;
-import pl.bartlomiej.securecapita.user.dto.UserDtoMapper;
-import pl.bartlomiej.securecapita.user.dto.UserReadDto;
+import pl.bartlomiej.securecapita.user.dto.*;
 import pl.bartlomiej.securecapita.verification.Verification;
 import pl.bartlomiej.securecapita.verification.VerificationService;
 
@@ -22,14 +19,13 @@ import static java.util.Map.of;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpStatus.*;
-import static org.springframework.security.authentication.UsernamePasswordAuthenticationToken.unauthenticated;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/securecapita-api/v1/users")
 public class UserController {
     private final UserService userService;
-    private final AuthenticationManager authenticationManager;
+    private final AuthenticationService authenticationService;
     private final VerificationService verificationService;
     private final JwtTokenService jwtTokenService;
 
@@ -49,8 +45,9 @@ public class UserController {
 
     @PostMapping("/auth")
     public ResponseEntity<HttpResponse> authenticateUser(@RequestBody @Valid UserAuthDto userAuthDto) {
-        authenticationManager.authenticate(unauthenticated(userAuthDto.email(), userAuthDto.password())); // przeanalizowac metode authenticate i unauth...
-        return userService.getUserByEmail(userAuthDto.email())
+        Authentication authentication = authenticationService.authenticate(userAuthDto.email(), userAuthDto.password());
+        UserSecurityDto authenticatedUser = (UserSecurityDto) authentication.getPrincipal();
+        return userService.getUserByEmail(authenticatedUser.getUsername())
                 .map(user ->
                         user.getUsingMfa()
                                 ? smsVerificationCodeResponseOperation(user)
