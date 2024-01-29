@@ -17,7 +17,9 @@ import pl.bartlomiej.securecapita.verification.VerificationService;
 import static java.time.LocalDateTime.now;
 import static java.util.Map.of;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpStatus.*;
 
 @RequiredArgsConstructor
@@ -88,13 +90,19 @@ public class UserController {
 
     private ResponseEntity<HttpResponse> smsVerificationCodeResponseOperation(User user) {
         verificationService.handleVerification(user, Verification.VerificationType.MFA_VERIFICATION);
+        UserReadDto userReadDto = UserDtoMapper.mapToReadDto(user);
+        userReadDto.add(linkTo(
+                methodOn(UserController.class)
+                        .authenticateMfaUser(userReadDto.getId(), "sms-code"))
+                .withRel("authenticateMfaUser")
+                .withType(POST.name()));
         return ResponseEntity.ok(
                 HttpResponse.builder()
                         .timestamp(now().toString())
                         .statusCode(OK.value())
                         .httpStatus(OK)
                         .message("Verification code sent.")
-                        .data(of("user", UserDtoMapper.mapToReadDto(user)))
+                        .data(of("user", userReadDto))
                         .build());
     }
 
