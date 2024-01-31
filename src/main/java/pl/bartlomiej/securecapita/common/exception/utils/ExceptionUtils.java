@@ -21,22 +21,20 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Slf4j
 public class ExceptionUtils {
     public static void processException(Exception exception, HttpServletRequest ignoredRequest, HttpServletResponse response) {
-        if (exception instanceof AccessDeniedException) {
-            writeResponse(response,
+        switch (exception) {
+            case AccessDeniedException accessDeniedException -> writeResponse(response,
                     getErrorHttpResponse(FORBIDDEN, "You don't have the required permissions."));
-        } else if (exception instanceof BadCredentialsException) {
-            writeResponse(response,
+            case BadCredentialsException badCredentialsException -> writeResponse(response,
                     getErrorHttpResponse(UNAUTHORIZED, "Bad authentication credentials."));
-        } else if (exception instanceof AuthenticationException) {
-            writeResponse(response,
+            case AuthenticationException authenticationException -> writeResponse(response,
                     getErrorHttpResponse(UNAUTHORIZED, "You need to authenticate to access this resource."));
-        } else if (exception instanceof JWTVerificationException) {
-            writeResponse(response,
+            case JWTVerificationException jwtVerificationException -> writeResponse(response,
                     getErrorHttpResponse(UNAUTHORIZED, "Invalid authorization token."));
-        } else {
-            writeResponse(response,
-                    getErrorHttpResponse(INTERNAL_SERVER_ERROR, "An error occured, try again."));
-            log.error("Unhandled error message: {}, Exception {}", exception.getMessage(), exception.getClass().getName());
+            default -> {
+                writeResponse(response,
+                        getErrorHttpResponse(INTERNAL_SERVER_ERROR, "An error occured, try again."));
+                log.error("Unhandled error message: {}, Exception {}", exception.getMessage(), exception.getClass().getName());
+            }
         }
     }
 
@@ -58,5 +56,5 @@ public class ExceptionUtils {
         objectMapper.writeValue(outputStream, httpResponse);
         outputStream.flush();
         outputStream.close();
-    }
+    } // why writeResponse is written by OutputStream?
 }
