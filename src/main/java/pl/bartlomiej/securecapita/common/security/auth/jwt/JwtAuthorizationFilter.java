@@ -40,7 +40,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             if (jwtTokenService.isTokenValid(requestEmail, token)) {
                 SecurityContextHolder.getContext()
                         .setAuthentication(
-                                getAuthentication(
+                                this.getAuthentication(
                                         requestEmail,
                                         jwtTokenService.getAuthoritiesFromRequestToken(token),
                                         request

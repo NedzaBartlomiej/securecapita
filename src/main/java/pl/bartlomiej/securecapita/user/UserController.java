@@ -21,6 +21,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpStatus.*;
+import static pl.bartlomiej.securecapita.verification.Verification.VerificationType.RESET_PASSWORD_VERIFICATION;
 
 @RequiredArgsConstructor
 @RestController
@@ -53,18 +54,30 @@ public class UserController {
                 .map(user ->
                         user.getUsingMfa()
                                 ? smsVerificationCodeResponseOperation(user)
-                                : sendAuthResponse(user))
+                                : getAuthResponse(user))
                 .orElseThrow(UserNotFoundException::new);
     }
 
-    @PostMapping("{id}/auth/verifications/mfa_verification/{code}")
+    @PostMapping("{id}/auth/verifications/mfa-verification/{code}")
     public ResponseEntity<HttpResponse> authenticateMfaUser(
             @PathVariable("id") Long id, @PathVariable("code") String code) {
-        return sendAuthResponse(
+        return getAuthResponse(
                 userService.verifyMfaUser(id, code));
     }
 
     //todo: {id}/auth/verifications/email_verification/{key} POST
+
+    @PostMapping("/auth/verifications/reset-password-verification")
+    public ResponseEntity<HttpResponse> sendResetPasswordVerificationEmail(
+            @RequestBody @Valid UserEmailRequest userEmailRequest) {
+        return userService.getUserByEmail(userEmailRequest.getEmail())
+                .map(user -> {
+                    verificationService.handleVerification(user, RESET_PASSWORD_VERIFICATION);
+                    return ResponseEntity.ok(
+                            getVerificationSentResponse("Verification email sent."));
+                })
+                .orElseThrow(UserNotFoundException::new);
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<HttpResponse> getAuthenticatedUser(@PathVariable("id") Long id, Authentication authentication) {
@@ -90,23 +103,16 @@ public class UserController {
 
     private ResponseEntity<HttpResponse> smsVerificationCodeResponseOperation(User user) {
         verificationService.handleVerification(user, Verification.VerificationType.MFA_VERIFICATION);
-        UserReadDto userReadDto = UserDtoMapper.mapToReadDto(user);
-        userReadDto.add(linkTo(
-                methodOn(UserController.class)
-                        .authenticateMfaUser(userReadDto.getId(), "sms-code"))
-                .withRel("authenticateMfaUser")
-                .withType(POST.name()));
-        return ResponseEntity.ok(
-                HttpResponse.builder()
-                        .timestamp(now().toString())
-                        .statusCode(OK.value())
-                        .httpStatus(OK)
-                        .message("Verification code sent.")
-                        .data(of("user", userReadDto))
-                        .build());
+        return ResponseEntity.ok(getVerificationSentResponse("Verification code sent.")
+                .add(linkTo(
+                        methodOn(UserController.class)
+                                .authenticateMfaUser(user.getId(), "sms-code"))
+                        .withRel("authenticateMfaUser")
+                        .withType(POST.name()))
+        );
     }
 
-    private ResponseEntity<HttpResponse> sendAuthResponse(User user) {
+    private ResponseEntity<HttpResponse> getAuthResponse(User user) {
         UserReadDto userReadDto = UserDtoMapper.mapToReadDto(user);
         return ResponseEntity.ok(
                 HttpResponse.builder()
@@ -120,6 +126,15 @@ public class UserController {
                                 "refreshToken", jwtTokenService.createRefreshToken(UserDtoMapper.mapToSecurityDto(user))
                         ))
                         .build());
+    }
+
+    private HttpResponse getVerificationSentResponse(String message) {
+        return HttpResponse.builder()
+                .timestamp(now().toString())
+                .statusCode(OK.value())
+                .httpStatus(OK)
+                .message(message)
+                .build();
     }
 
     private UserReadDto addUserSelfRelLink(UserReadDto userReadDto) {

@@ -9,10 +9,10 @@ import pl.bartlomiej.securecapita.common.exception.AccountVerificationException;
 import pl.bartlomiej.securecapita.common.exception.ApiException;
 import pl.bartlomiej.securecapita.common.exception.ResourceNotFoundException;
 import pl.bartlomiej.securecapita.common.exception.UserNotFoundException;
-import pl.bartlomiej.securecapita.user.nestedentity.role.RoleRepository;
 import pl.bartlomiej.securecapita.user.dto.UserCreateDto;
 import pl.bartlomiej.securecapita.user.dto.UserDtoMapper;
 import pl.bartlomiej.securecapita.user.dto.UserReadDto;
+import pl.bartlomiej.securecapita.user.nestedentity.role.RoleRepository;
 import pl.bartlomiej.securecapita.verification.VerificationService;
 
 import java.time.LocalDateTime;

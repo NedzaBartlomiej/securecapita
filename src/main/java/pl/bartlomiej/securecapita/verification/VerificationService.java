@@ -12,8 +12,7 @@ import java.util.Optional;
 
 import static java.util.UUID.randomUUID;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
-import static pl.bartlomiej.securecapita.verification.Verification.VerificationType.EMAIL_VERIFICATION;
-import static pl.bartlomiej.securecapita.verification.Verification.VerificationType.MFA_VERIFICATION;
+import static pl.bartlomiej.securecapita.verification.Verification.VerificationType.*;
 
 @Service
 @Slf4j
@@ -49,12 +48,25 @@ public class VerificationService {
                         .verificationType(EMAIL_VERIFICATION.name())
                         .verificationIdentifier(identifier).build());
                 //todo emailService.sendEmail(
-                // savedUser.getFirstName(),
-                // savedUser.getEmail(),
+                // user.getFirstName(),
+                // user.getEmail(),
                 // this.buildVerificationUrl(identifier, EMAIL_VERIFICATION.name()),
                 // EMAIL_VERIFICATION.name());
             }
-            //todo: other cases
+            case RESET_PASSWORD_VERIFICATION -> {
+                String identifier = randomUUID().toString();
+                verificationRepository.deleteVerificationByUserAndVerificationType(
+                        user, RESET_PASSWORD_VERIFICATION.name());
+                verificationRepository.save(Verification.builder()
+                        .user(user)
+                        .verificationType(RESET_PASSWORD_VERIFICATION.name())
+                        .verificationIdentifier(identifier).build());
+                //todo emailService.sendEmail(
+                // user.getFirstName(),
+                // user.getEmail(),
+                // this.buildVerificationUrl(identifier, EMAIL_VERIFICATION.name()),
+                // EMAIL_VERIFICATION.name());
+            }
         }
     }
 
@@ -71,10 +83,12 @@ public class VerificationService {
     }
 
     private String buildVerificationUrl(String identifier, String verificationType) {
-        return ServletUriComponentsBuilder
+        String verificationUrl = ServletUriComponentsBuilder
                 .fromCurrentContextPath()
                 .path("/auth/verifications/" + verificationType.toLowerCase() + "/" + identifier)
                 .build()
                 .toUriString();
+        log.info(verificationUrl);
+        return verificationUrl;
     }
 }
