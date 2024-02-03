@@ -60,7 +60,9 @@ public class VerificationService {
                 verificationRepository.save(Verification.builder()
                         .user(user)
                         .verificationType(RESET_PASSWORD_VERIFICATION.name())
-                        .verificationIdentifier(identifier).build());
+                        .verificationIdentifier(identifier)
+                        .expirationDate(LocalDateTime.now().plusHours(24))
+                        .build());
                 //todo emailService.sendEmail(
                 // user.getFirstName(),
                 // user.getEmail(),

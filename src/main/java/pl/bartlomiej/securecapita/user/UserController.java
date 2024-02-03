@@ -103,12 +103,13 @@ public class UserController {
 
     private ResponseEntity<HttpResponse> smsVerificationCodeResponseOperation(User user) {
         verificationService.handleVerification(user, Verification.VerificationType.MFA_VERIFICATION);
-        return ResponseEntity.ok(getVerificationSentResponse("Verification code sent.")
-                .add(linkTo(
-                        methodOn(UserController.class)
-                                .authenticateMfaUser(user.getId(), "sms-code"))
-                        .withRel("authenticateMfaUser")
-                        .withType(POST.name()))
+        return ResponseEntity.ok(
+                getVerificationSentResponse("Verification code sent.")
+                        .add(linkTo(
+                                methodOn(UserController.class)
+                                        .authenticateMfaUser(user.getId(), "sms-code"))
+                                .withRel("authenticateMfaUser")
+                                .withType(POST.name()))
         );
     }
 
