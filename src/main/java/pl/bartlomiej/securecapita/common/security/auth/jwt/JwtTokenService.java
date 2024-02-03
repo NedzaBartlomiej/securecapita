@@ -3,10 +3,7 @@ package pl.bartlomiej.securecapita.common.security.auth.jwt;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
@@ -60,14 +57,7 @@ public class JwtTokenService {
                 .map(SimpleGrantedAuthority::new).toList();
     }
 
-    public Authentication getAuthentication(String id, List<SimpleGrantedAuthority> authorities, HttpServletRequest request) {
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(id, null, authorities);
-        authenticationToken.setDetails(request);
-        return authenticationToken;
-    }
-
-    public String getSubjectFromRequestToken(String token, HttpServletRequest request) {
+    public String getSubjectFromRequestToken(String token) {
         return this.verify(token).getSubject();
     }
 

@@ -22,13 +22,13 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class ExceptionUtils {
     public static void processException(Exception exception, HttpServletRequest ignoredRequest, HttpServletResponse response) {
         switch (exception) {
-            case AccessDeniedException accessDeniedException -> writeResponse(response,
+            case AccessDeniedException ignoredAccessDeniedException -> writeResponse(response,
                     getErrorHttpResponse(FORBIDDEN, "You don't have the required permissions."));
-            case BadCredentialsException badCredentialsException -> writeResponse(response,
+            case BadCredentialsException ignoredBadCredentialsException -> writeResponse(response,
                     getErrorHttpResponse(UNAUTHORIZED, "Bad authentication credentials."));
-            case AuthenticationException authenticationException -> writeResponse(response,
+            case AuthenticationException ignoredAuthenticationException -> writeResponse(response,
                     getErrorHttpResponse(UNAUTHORIZED, "You need to authenticate to access this resource."));
-            case JWTVerificationException jwtVerificationException -> writeResponse(response,
+            case JWTVerificationException ignoredJwtVerificationException -> writeResponse(response,
                     getErrorHttpResponse(UNAUTHORIZED, "Invalid authorization token."));
             default -> {
                 writeResponse(response,
@@ -56,5 +56,5 @@ public class ExceptionUtils {
         objectMapper.writeValue(outputStream, httpResponse);
         outputStream.flush();
         outputStream.close();
-    } // why writeResponse is written by OutputStream?
+    }
 }

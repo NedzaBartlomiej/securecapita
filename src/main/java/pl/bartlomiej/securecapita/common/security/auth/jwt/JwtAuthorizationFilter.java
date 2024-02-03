@@ -6,11 +6,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import pl.bartlomiej.securecapita.common.security.auth.jwt.JwtTokenService;
 
+import java.util.List;
 import java.util.Map;
 
 import static java.util.stream.Stream.ofNullable;
@@ -37,7 +40,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             if (jwtTokenService.isTokenValid(requestEmail, token)) {
                 SecurityContextHolder.getContext()
                         .setAuthentication(
-                                jwtTokenService.getAuthentication(
+                                getAuthentication(
                                         requestEmail,
                                         jwtTokenService.getAuthoritiesFromRequestToken(token),
                                         request
@@ -68,8 +71,15 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private Map<String, String> getRequestTokenClaims(HttpServletRequest request) throws JWTVerificationException {
         String token = getTokenFromRequest(request);
         return Map.of(
-                EMAIL_REQUEST_KEY, jwtTokenService.getSubjectFromRequestToken(token, request),
+                EMAIL_REQUEST_KEY, jwtTokenService.getSubjectFromRequestToken(token),
                 TOKEN_REQUEST_KEY, token
         );
+    }
+
+    private Authentication getAuthentication(String email, List<SimpleGrantedAuthority> authorities, HttpServletRequest request) {
+        UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(email, null, authorities);
+        authenticationToken.setDetails(request);
+        return authenticationToken;
     }
 }
