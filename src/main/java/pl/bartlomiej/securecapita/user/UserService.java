@@ -83,11 +83,12 @@ public class UserService {
         }
     }
 
+    // todo: check response statuses adn evntually fix it
     private User verifyResetPasswordData(Long id, String identifier, String password, String passwordConfirmation) {
         User user = verificationService.getUserByVerificationIdentifier(identifier)
-                .orElseThrow(() -> new ApiException("Verification data does not match.", UNAUTHORIZED));
-        // todo: create field in verification table isVerified & check it here
-        //  (set this flag on true in verifyResetPasswordIdentifier function)
+                .orElseThrow(() -> new ApiException("Verification data does not match.", FORBIDDEN));
+        if (!verificationService.isVerified(identifier))
+            throw new AccountVerificationException();
         if (!user.getId().equals(id))
             throw new AccountVerificationException();
         if (!password.equals(passwordConfirmation))

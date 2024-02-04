@@ -75,6 +75,19 @@ public class VerificationService {
         }
     }
 
+    public User verifyResetPasswordIdentifier(String identifier) {
+        LocalDateTime linkExpirationDate =
+                verificationRepository.getExpirationDateByVerificationIdentifier(identifier);
+
+        return verificationRepository.getUserByVerificationIdentifier(identifier)
+                .filter(user -> linkExpirationDate.isAfter(now()))
+                .map(user -> {
+                    verificationRepository.updateIsVerifiedByIdentifier(identifier, true);
+                    return user;
+                })
+                .orElseThrow(AccountVerificationException::new);
+    }
+
     public Optional<User> getUserByVerificationIdentifier(String identifier) {
         return verificationRepository.getUserByVerificationIdentifier(identifier);
     }
@@ -87,21 +100,16 @@ public class VerificationService {
         return verificationRepository.getExpirationDateByVerificationIdentifier(identifier);
     }
 
+    public boolean isVerified(String identifier) {
+        return verificationRepository.isVerifiedByVerificationIdentifier(identifier);
+    }
+
+    // todo: fix "_" to "-" in verificationType in link
     private String buildVerificationUrl(String identifier, String verificationType) {
-        String verificationUrl = ServletUriComponentsBuilder
+        return ServletUriComponentsBuilder
                 .fromCurrentContextPath()
                 .path("/auth/verifications/" + verificationType.toLowerCase() + "/" + identifier)
                 .build()
                 .toUriString();
-        return verificationUrl;
-    }
-
-    public User verifyResetPasswordIdentifier(String identifier) {
-        LocalDateTime linkExpirationDate =
-                verificationRepository.getExpirationDateByVerificationIdentifier(identifier);
-
-        return verificationRepository.getUserByVerificationIdentifier(identifier)
-                .filter(user -> linkExpirationDate.isAfter(now()))
-                .orElseThrow(AccountVerificationException::new);
     }
 }

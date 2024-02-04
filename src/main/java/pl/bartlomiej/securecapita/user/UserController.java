@@ -45,6 +45,25 @@ public class UserController {
         );
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<HttpResponse> getAuthenticatedUser(@PathVariable Long id, Authentication authentication) {
+        User authenticatedUser = userService.getUserByEmail(authentication.getName())
+                .orElseThrow(UserNotFoundException::new);
+
+        return userService.getUserById(id)
+                .map(user -> {
+                    if (!user.equals(authenticatedUser)) {
+                        throw new ApiException("You try to access not your account resorces.", FORBIDDEN);
+                    } else {
+                        return ResponseEntity.ok(
+                                this.getUserResponse(user));
+                    }
+                })
+                .orElseThrow(UserNotFoundException::new);
+    }
+
+    // AUTHENTICATION FEATURE
+
     @PostMapping("/auth")
     public ResponseEntity<HttpResponse> authenticateUser(@RequestBody @Valid UserAuthDto userAuthDto) {
         Authentication authentication = authenticationService.authenticate(userAuthDto.email(), userAuthDto.password());
@@ -66,6 +85,8 @@ public class UserController {
 
     //todo: {id}/auth/verifications/email_verification/{key} POST
 
+    // RESET PASSWORD FEATURE -> 02.04.2024 - is_verified implemented (working) only make todos
+
     @PostMapping("/auth/verifications/reset-password-verification")
     public ResponseEntity<HttpResponse> sendResetPasswordVerificationEmail(
             @RequestBody @Valid UserEmailRequest userEmailRequest) {
@@ -85,6 +106,7 @@ public class UserController {
                 this.getUserResponse(linkOwner)
                         .add(linkTo(
                                 methodOn(UserController.class)
+                                        //todo
                                         .resetUserPassword(linkOwner.getId(), identifier, null))
                                 .withRel("resetPassword")
                                 .withType(PATCH.name()))
@@ -101,22 +123,7 @@ public class UserController {
                 this.getOkResponseWithMessage("Password has been changed successfully."));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<HttpResponse> getAuthenticatedUser(@PathVariable Long id, Authentication authentication) {
-        User authenticatedUser = userService.getUserByEmail(authentication.getName())
-                .orElseThrow(UserNotFoundException::new);
-
-        return userService.getUserById(id)
-                .map(user -> {
-                    if (!user.equals(authenticatedUser)) {
-                        throw new ApiException("You try to access not your account resorces.", FORBIDDEN);
-                    } else {
-                        return ResponseEntity.ok(
-                                this.getUserResponse(user));
-                    }
-                })
-                .orElseThrow(UserNotFoundException::new);
-    }
+    // RESPONSE OPERATIONS
 
     private ResponseEntity<HttpResponse> smsVerificationCodeResponseOperation(User user) {
         verificationService.handleVerification(user, Verification.VerificationType.MFA_VERIFICATION);

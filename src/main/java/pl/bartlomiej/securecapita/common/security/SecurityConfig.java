@@ -27,6 +27,8 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @Configuration
 public class SecurityConfig {
 
+
+    // todo: fix public endpoint (new get mapping fixes in usercontroller in auth and verifications endpoints)
     private static final String[] PUBLIC_POST_ENDPOINTS = {
             "/securecapita-api/v1/users/auth/**",
             "/securecapita-api/v1/users",

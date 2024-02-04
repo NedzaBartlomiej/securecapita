@@ -29,6 +29,8 @@ public class Verification {
 
     private LocalDateTime expirationDate;
 
+    private boolean isVerified;
+
     public enum VerificationType {
         EMAIL_VERIFICATION, RESET_PASSWORD_VERIFICATION, MFA_VERIFICATION
     }
