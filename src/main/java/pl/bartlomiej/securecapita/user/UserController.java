@@ -57,7 +57,7 @@ public class UserController {
                 .orElseThrow(UserNotFoundException::new);
     }
 
-    @PostMapping("/{id}/auth/verifications/mfa-verification/{code}")
+    @GetMapping("/{id}/auth/verifications/mfa-verification/{code}")
     public ResponseEntity<HttpResponse> authenticateMfaUser(
             @PathVariable("id") Long id, @PathVariable("code") String code) {
         return getAuthResponse(
@@ -78,7 +78,7 @@ public class UserController {
                 .orElseThrow(UserNotFoundException::new);
     }
 
-    @PostMapping("/auth/verifications/reset-password-verification/{identifier}")
+    @GetMapping("/auth/verifications/reset-password-verification/{identifier}")
     public ResponseEntity<HttpResponse> verifyResetPasswordLink(@PathVariable String identifier) {
         User linkOwner = verificationService.verifyResetPasswordIdentifier(identifier);
         return ResponseEntity.ok(
