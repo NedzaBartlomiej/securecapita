@@ -74,6 +74,16 @@ public class UserService {
     }
 
     public void resetUserPassword(Long id, String identifier, String password, String passwordConfirmation) {
+        User user = verifyResetPasswordData(id, identifier, password, passwordConfirmation);
+        try {
+            verificationService.deleteVerificationByVerificationIdentifier(identifier);
+            userRepository.updateUserPasswordById(user.getId(), passwordEncoder.encode(password));
+        } catch (Exception exception) {
+            throw new ApiException("An error occured.", INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private User verifyResetPasswordData(Long id, String identifier, String password, String passwordConfirmation) {
         User user = verificationService.getUserByVerificationIdentifier(identifier)
                 .orElseThrow(() -> new ApiException("Verification data does not match.", UNAUTHORIZED));
         // todo: create field in verification table isVerified & check it here
@@ -82,11 +92,6 @@ public class UserService {
             throw new AccountVerificationException();
         if (!password.equals(passwordConfirmation))
             throw new ApiException("Provided passwords do not match.", BAD_REQUEST);
-        try {
-            verificationService.deleteVerificationByVerificationIdentifier(identifier);
-            userRepository.updateUserPasswordById(user.getId(), passwordEncoder.encode(password));
-        } catch (Exception exception) {
-            throw new ApiException("An error occured.", INTERNAL_SERVER_ERROR);
-        }
+        return user;
     }
 }
