@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import pl.bartlomiej.securecapita.common.exception.AccountVerificationException;
 import pl.bartlomiej.securecapita.common.exception.ApiException;
+import pl.bartlomiej.securecapita.common.exception.ResourceNotFoundException;
 import pl.bartlomiej.securecapita.common.exception.UserNotFoundException;
 import pl.bartlomiej.securecapita.common.model.HttpResponse;
 import pl.bartlomiej.securecapita.user.UserController;
@@ -51,5 +52,11 @@ public class RestControllerExceptionHandlerAdvice {
                         .withType(POST.name()));
         return ResponseEntity.status(NOT_FOUND)
                 .body(httpResponse);
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<HttpResponse> handleResourceNotFoundException(ResourceNotFoundException exception) {
+        return ResponseEntity.status(NOT_FOUND).body(
+                ExceptionUtils.getErrorHttpResponse(NOT_FOUND, exception.getMessage()));
     }
 }

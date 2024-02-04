@@ -30,7 +30,11 @@ public class SecurityConfig {
     private static final String[] PUBLIC_POST_ENDPOINTS = {
             "/securecapita-api/v1/users/auth/**",
             "/securecapita-api/v1/users",
-            "/securecapita-api/v1/users/*/auth/verifications/**"
+            "/securecapita-api/v1/users/*/auth/verifications/**",
+            "/securecapita-api/v1/users/*/verifications/**"
+    };
+    private static final String[] PUBLIC_PATCH_ENDPOINTS = {
+            "/securecapita-api/v1/users/*/verifications/**"
     };
     private final BCryptPasswordEncoder passwordEncoder;
     private final AccesDeniedHandlerImpl accesDeniedHandler;
@@ -48,6 +52,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
                         authorizationManagerRequestMatcherRegistry
                                 .requestMatchers(POST, PUBLIC_POST_ENDPOINTS).permitAll()
+                                .requestMatchers(PATCH, PUBLIC_PATCH_ENDPOINTS).permitAll()
                                 .requestMatchers("/error").permitAll()
                                 .requestMatchers(GET, "/securecapita-api/v1/users/**").hasAuthority("READ:USER")
                                 .requestMatchers(GET, "/securecapita-api/v1/customers/**").hasAuthority("READ:CUSTOMER")

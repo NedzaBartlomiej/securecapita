@@ -19,8 +19,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static java.time.LocalDateTime.now;
-import static org.springframework.http.HttpStatus.CONFLICT;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.*;
 import static pl.bartlomiej.securecapita.user.nestedentity.role.RoleType.ROLE_USER;
 import static pl.bartlomiej.securecapita.verification.Verification.VerificationType.EMAIL_VERIFICATION;
 
@@ -72,5 +71,22 @@ public class UserService {
                     verificationService.deleteVerificationByVerificationIdentifier(code);
                     return user;
                 }).orElseThrow(AccountVerificationException::new);
+    }
+
+    public void resetUserPassword(Long id, String identifier, String password, String passwordConfirmation) {
+        User user = verificationService.getUserByVerificationIdentifier(identifier)
+                .orElseThrow(() -> new ApiException("Verification data does not match.", UNAUTHORIZED));
+        // todo: create field in verification table isVerified & check it here
+        //  (set this flag on true in verifyResetPasswordIdentifier function)
+        if (!user.getId().equals(id))
+            throw new AccountVerificationException();
+        if (!password.equals(passwordConfirmation))
+            throw new ApiException("Provided passwords do not match.", BAD_REQUEST);
+        try {
+            verificationService.deleteVerificationByVerificationIdentifier(identifier);
+            userRepository.updateUserPasswordById(user.getId(), passwordEncoder.encode(password));
+        } catch (Exception exception) {
+            throw new ApiException("An error occured.", INTERNAL_SERVER_ERROR);
+        }
     }
 }

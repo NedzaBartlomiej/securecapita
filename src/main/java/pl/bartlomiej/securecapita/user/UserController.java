@@ -18,8 +18,7 @@ import static java.time.LocalDateTime.now;
 import static java.util.Map.of;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpMethod.*;
 import static org.springframework.http.HttpStatus.*;
 import static pl.bartlomiej.securecapita.verification.Verification.VerificationType.RESET_PASSWORD_VERIFICATION;
 
@@ -58,7 +57,7 @@ public class UserController {
                 .orElseThrow(UserNotFoundException::new);
     }
 
-    @PostMapping("{id}/auth/verifications/mfa-verification/{code}")
+    @PostMapping("/{id}/auth/verifications/mfa-verification/{code}")
     public ResponseEntity<HttpResponse> authenticateMfaUser(
             @PathVariable("id") Long id, @PathVariable("code") String code) {
         return getAuthResponse(
@@ -74,13 +73,36 @@ public class UserController {
                 .map(user -> {
                     verificationService.handleVerification(user, RESET_PASSWORD_VERIFICATION);
                     return ResponseEntity.ok(
-                            getVerificationSentResponse("Verification email sent."));
+                            getOkResponseWithMessage("Verification email sent."));
                 })
                 .orElseThrow(UserNotFoundException::new);
     }
 
+    @PostMapping("/auth/verifications/reset-password-verification/{identifier}")
+    public ResponseEntity<HttpResponse> verifyResetPasswordLink(@PathVariable String identifier) {
+        User linkOwner = verificationService.verifyResetPasswordIdentifier(identifier);
+        return ResponseEntity.ok(
+                this.getUserResponse(linkOwner)
+                        .add(linkTo(
+                                methodOn(UserController.class)
+                                        .resetUserPassword(linkOwner.getId(), identifier, null))
+                                .withRel("resetPassword")
+                                .withType(PATCH.name()))
+        );
+    }
+
+    @PatchMapping("/{id}/verifications/reset-password-verification/{identifier}")
+    public ResponseEntity<HttpResponse> resetUserPassword(
+            @PathVariable Long id, @PathVariable String identifier,
+            @RequestBody @Valid ResetUserPasswordRequest passwordRequest) {
+        userService.resetUserPassword
+                (id, identifier, passwordRequest.getPassword(), passwordRequest.getPasswordConfirmation());
+        return ResponseEntity.ok(
+                this.getOkResponseWithMessage("Password has been changed successfully."));
+    }
+
     @GetMapping("/{id}")
-    public ResponseEntity<HttpResponse> getAuthenticatedUser(@PathVariable("id") Long id, Authentication authentication) {
+    public ResponseEntity<HttpResponse> getAuthenticatedUser(@PathVariable Long id, Authentication authentication) {
         User authenticatedUser = userService.getUserByEmail(authentication.getName())
                 .orElseThrow(UserNotFoundException::new);
 
@@ -90,12 +112,7 @@ public class UserController {
                         throw new ApiException("You try to access not your account resorces.", FORBIDDEN);
                     } else {
                         return ResponseEntity.ok(
-                                HttpResponse.builder()
-                                        .timestamp(now().toString())
-                                        .statusCode(OK.value())
-                                        .httpStatus(OK)
-                                        .data(of("user", UserDtoMapper.mapToReadDto(user)))
-                                        .build());
+                                this.getUserResponse(user));
                     }
                 })
                 .orElseThrow(UserNotFoundException::new);
@@ -104,7 +121,7 @@ public class UserController {
     private ResponseEntity<HttpResponse> smsVerificationCodeResponseOperation(User user) {
         verificationService.handleVerification(user, Verification.VerificationType.MFA_VERIFICATION);
         return ResponseEntity.ok(
-                getVerificationSentResponse("Verification code sent.")
+                getOkResponseWithMessage("Verification code sent.")
                         .add(linkTo(
                                 methodOn(UserController.class)
                                         .authenticateMfaUser(user.getId(), "sms-code"))
@@ -129,12 +146,21 @@ public class UserController {
                         .build());
     }
 
-    private HttpResponse getVerificationSentResponse(String message) {
+    private HttpResponse getOkResponseWithMessage(String message) {
         return HttpResponse.builder()
                 .timestamp(now().toString())
                 .statusCode(OK.value())
                 .httpStatus(OK)
                 .message(message)
+                .build();
+    }
+
+    private HttpResponse getUserResponse(User user) {
+        return HttpResponse.builder()
+                .timestamp(now().toString())
+                .statusCode(OK.value())
+                .httpStatus(OK)
+                .data(of("user", UserDtoMapper.mapToReadDto(user)))
                 .build();
     }
 

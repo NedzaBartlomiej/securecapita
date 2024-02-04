@@ -4,12 +4,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import pl.bartlomiej.securecapita.common.exception.AccountVerificationException;
 import pl.bartlomiej.securecapita.sms.SmsService;
 import pl.bartlomiej.securecapita.user.User;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import static java.time.LocalDateTime.now;
 import static java.util.UUID.randomUUID;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static pl.bartlomiej.securecapita.verification.Verification.VerificationType.*;
@@ -63,10 +65,11 @@ public class VerificationService {
                         .verificationIdentifier(identifier)
                         .expirationDate(LocalDateTime.now().plusHours(24))
                         .build());
+                log.info(this.buildVerificationUrl(identifier, RESET_PASSWORD_VERIFICATION.name()));
                 //todo emailService.sendEmail(
                 // user.getFirstName(),
                 // user.getEmail(),
-                // this.buildVerificationUrl(identifier, EMAIL_VERIFICATION.name()),
+                // this.buildVerificationUrl(identifier, RESET_PASSWORD_VERIFICATION.name()),
                 // EMAIL_VERIFICATION.name());
             }
         }
@@ -90,7 +93,15 @@ public class VerificationService {
                 .path("/auth/verifications/" + verificationType.toLowerCase() + "/" + identifier)
                 .build()
                 .toUriString();
-        log.info(verificationUrl);
         return verificationUrl;
+    }
+
+    public User verifyResetPasswordIdentifier(String identifier) {
+        LocalDateTime linkExpirationDate =
+                verificationRepository.getExpirationDateByVerificationIdentifier(identifier);
+
+        return verificationRepository.getUserByVerificationIdentifier(identifier)
+                .filter(user -> linkExpirationDate.isAfter(now()))
+                .orElseThrow(AccountVerificationException::new);
     }
 }
