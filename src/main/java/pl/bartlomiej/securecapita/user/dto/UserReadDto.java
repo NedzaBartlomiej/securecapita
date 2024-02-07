@@ -40,5 +40,5 @@ public class UserReadDto extends RepresentationModel<UserReadDto> {
 
     private Boolean isNotLocked;
 
-    private Boolean isUsingMfa;
+    private Boolean usingMfa;
 }
