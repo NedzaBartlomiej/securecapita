@@ -82,17 +82,17 @@ public class UserService {
             throw new ApiException("An error occured.", INTERNAL_SERVER_ERROR);
         }
     }
-
-    // todo: check response statuses adn evntually fix it
+    
     private User verifyResetPasswordData(Long id, String identifier, String password, String passwordConfirmation) {
         User user = verificationService.getUserByVerificationIdentifier(identifier)
-                .orElseThrow(() -> new ApiException("Verification data does not match.", FORBIDDEN));
+                .orElseThrow(() ->
+                        new ApiException("The user is not associated with the verification identifier", NOT_FOUND));
         if (!verificationService.isVerified(identifier))
             throw new AccountVerificationException();
         if (!user.getId().equals(id))
             throw new AccountVerificationException();
         if (!password.equals(passwordConfirmation))
-            throw new ApiException("Provided passwords do not match.", BAD_REQUEST);
+            throw new ApiException("Provided passwords do not match.", UNPROCESSABLE_ENTITY);
         return user;
     }
 }

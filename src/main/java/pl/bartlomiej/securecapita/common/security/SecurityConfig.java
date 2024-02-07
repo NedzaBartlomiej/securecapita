@@ -18,6 +18,8 @@ import pl.bartlomiej.securecapita.common.security.auth.jwt.JwtAuthorizationFilte
 import pl.bartlomiej.securecapita.common.security.handler.AccesDeniedHandlerImpl;
 import pl.bartlomiej.securecapita.common.security.handler.AuthenticationEntryPointImpl;
 
+import java.util.Arrays;
+
 import static org.springframework.http.HttpMethod.*;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
@@ -27,22 +29,25 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @Configuration
 public class SecurityConfig {
 
+    private final static String ROOT_V1_API_USERS_PATH = "/securecapita-api/v1/users";
+    private static final String[] PUBLIC_USERS_ENDPOINTS = {
+            "/auth/**",
+            "/*/auth/**",
+            "/verifications/**",
+            "/*/verifications/**"
+    };
 
-    // todo: fix public endpoint (new get mapping fixes in usercontroller in auth and verifications endpoints)
-    private static final String[] PUBLIC_POST_ENDPOINTS = {
-            "/securecapita-api/v1/users/auth/**",
-            "/securecapita-api/v1/users",
-            "/securecapita-api/v1/users/*/auth/verifications/**",
-            "/securecapita-api/v1/users/*/verifications/**"
-    };
-    private static final String[] PUBLIC_PATCH_ENDPOINTS = {
-            "/securecapita-api/v1/users/*/verifications/**"
-    };
     private final BCryptPasswordEncoder passwordEncoder;
     private final AccesDeniedHandlerImpl accesDeniedHandler;
     private final AuthenticationEntryPointImpl authenticationEntryPoint;
     private final UserDetailsService userDetailsService;
     private final JwtAuthorizationFilter jwtAuthorizationFilter;
+
+    private static String[] getPublicUsersEndpointsWithRootPath() {
+        return Arrays.stream(PUBLIC_USERS_ENDPOINTS)
+                .map(endpoint -> ROOT_V1_API_USERS_PATH + endpoint)
+                .toArray(String[]::new);
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -53,8 +58,9 @@ public class SecurityConfig {
                         sessionManagementConfigurer.sessionCreationPolicy(STATELESS))
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
                         authorizationManagerRequestMatcherRegistry
-                                .requestMatchers(POST, PUBLIC_POST_ENDPOINTS).permitAll()
-                                .requestMatchers(PATCH, PUBLIC_PATCH_ENDPOINTS).permitAll()
+                                .requestMatchers(POST, ROOT_V1_API_USERS_PATH).permitAll()
+                                .requestMatchers(
+                                        getPublicUsersEndpointsWithRootPath()).permitAll()
                                 .requestMatchers("/error").permitAll()
                                 .requestMatchers(GET, "/securecapita-api/v1/users/**").hasAuthority("READ:USER")
                                 .requestMatchers(GET, "/securecapita-api/v1/customers/**").hasAuthority("READ:CUSTOMER")

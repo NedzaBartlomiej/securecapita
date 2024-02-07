@@ -65,7 +65,7 @@ public class VerificationService {
                         .verificationIdentifier(identifier)
                         .expirationDate(LocalDateTime.now().plusHours(24))
                         .build());
-                log.info(this.buildVerificationUrl(identifier, RESET_PASSWORD_VERIFICATION.name()));
+                log.info(this.buildVerificationUrl(identifier));
                 //todo emailService.sendEmail(
                 // user.getFirstName(),
                 // user.getEmail(),
@@ -104,11 +104,10 @@ public class VerificationService {
         return verificationRepository.isVerifiedByVerificationIdentifier(identifier);
     }
 
-    // todo: fix "_" to "-" in verificationType in link
-    private String buildVerificationUrl(String identifier, String verificationType) {
+    private String buildVerificationUrl(String identifier) {
         return ServletUriComponentsBuilder
-                .fromCurrentContextPath()
-                .path("/auth/verifications/" + verificationType.toLowerCase() + "/" + identifier)
+                .fromCurrentRequestUri()
+                .path("/" + identifier)
                 .build()
                 .toUriString();
     }

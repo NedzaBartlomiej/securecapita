@@ -76,7 +76,7 @@ public class UserController {
                 .orElseThrow(UserNotFoundException::new);
     }
 
-    @GetMapping("/{id}/auth/verifications/mfa-verification/{code}")
+    @DeleteMapping("/{id}/auth/verifications/mfa-verification/{code}")
     public ResponseEntity<HttpResponse> authenticateMfaUser(
             @PathVariable("id") Long id, @PathVariable("code") String code) {
         return getAuthResponse(
@@ -85,9 +85,9 @@ public class UserController {
 
     //todo: {id}/auth/verifications/email_verification/{key} POST
 
-    // RESET PASSWORD FEATURE -> 02.04.2024 - is_verified implemented (working) only make todos
+    // RESET PASSWORD FEATURE
 
-    @PostMapping("/auth/verifications/reset-password-verification")
+    @PostMapping("/verifications/reset-password-verification")
     public ResponseEntity<HttpResponse> sendResetPasswordVerificationEmail(
             @RequestBody @Valid UserEmailRequest userEmailRequest) {
         return userService.getUserByEmail(userEmailRequest.getEmail())
@@ -99,15 +99,17 @@ public class UserController {
                 .orElseThrow(UserNotFoundException::new);
     }
 
-    @GetMapping("/auth/verifications/reset-password-verification/{identifier}")
+    @PatchMapping("/verifications/reset-password-verification/{identifier}")
     public ResponseEntity<HttpResponse> verifyResetPasswordLink(@PathVariable String identifier) {
         User linkOwner = verificationService.verifyResetPasswordIdentifier(identifier);
         return ResponseEntity.ok(
                 this.getUserResponse(linkOwner)
                         .add(linkTo(
                                 methodOn(UserController.class)
-                                        //todo
-                                        .resetUserPassword(linkOwner.getId(), identifier, null))
+                                        .resetUserPassword(
+                                                linkOwner.getId(),
+                                                identifier,
+                                                ResetUserPasswordRequest.builder().build()))
                                 .withRel("resetPassword")
                                 .withType(PATCH.name()))
         );
@@ -133,7 +135,7 @@ public class UserController {
                                 methodOn(UserController.class)
                                         .authenticateMfaUser(user.getId(), "sms-code"))
                                 .withRel("authenticateMfaUser")
-                                .withType(POST.name()))
+                                .withType(DELETE.name()))
         );
     }
 
