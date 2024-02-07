@@ -15,7 +15,8 @@ import pl.bartlomiej.securecapita.user.UserController;
 import static java.util.Objects.requireNonNull;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.http.HttpMethod.POST;
-import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @RestControllerAdvice
 public class RestControllerExceptionHandlerAdvice {
@@ -38,8 +39,8 @@ public class RestControllerExceptionHandlerAdvice {
 
     @ExceptionHandler(AccountVerificationException.class)
     public ResponseEntity<HttpResponse> handleAccountVerificationException(AccountVerificationException exception) {
-        return ResponseEntity.status(UNPROCESSABLE_ENTITY).body(
-                ExceptionUtils.getErrorHttpResponse(UNPROCESSABLE_ENTITY, exception.getMessage())
+        return ResponseEntity.status(NOT_FOUND).body(
+                ExceptionUtils.getErrorHttpResponse(NOT_FOUND, exception.getMessage())
         );
     }
 
