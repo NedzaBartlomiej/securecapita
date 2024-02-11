@@ -30,7 +30,7 @@ public class JwtTokenService {
     private static final String TOKEN_AUDIENCE = "SECURECAPITA";
     private static final String TOKEN_AUTHORITIES = "authorities";
     private static final Date ACCESS_TOKEN_EXPIRATION_DATE = new Date(currentTimeMillis() + 1_800_000L);
-    private static final Date REFRESH_TOKEN_EXPIRATION_DATE = new Date(currentTimeMillis() + 1L);
+    private static final Date REFRESH_TOKEN_EXPIRATION_DATE = new Date(currentTimeMillis() + 432_000_000L);
     @Value(value = "${jwt.secret}")
     private String secret;
 
