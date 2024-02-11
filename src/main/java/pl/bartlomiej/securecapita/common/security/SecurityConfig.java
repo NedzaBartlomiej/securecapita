@@ -58,12 +58,23 @@ public class SecurityConfig {
                         sessionManagementConfigurer.sessionCreationPolicy(STATELESS))
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
                         authorizationManagerRequestMatcherRegistry
+                                // PUBLIC
                                 .requestMatchers(POST, ROOT_V1_API_USERS_PATH).permitAll()
                                 .requestMatchers(
                                         getPublicUsersEndpointsWithRootPath()).permitAll()
                                 .requestMatchers("/error").permitAll()
+                                // READ
                                 .requestMatchers(GET, "/securecapita-api/v1/users/**").hasAuthority("READ:USER")
                                 .requestMatchers(GET, "/securecapita-api/v1/customers/**").hasAuthority("READ:CUSTOMER")
+                                // CREATE
+                                .requestMatchers(POST, "/securecapita-api/v1/users/**").hasAuthority("CREATE:USER")
+                                .requestMatchers(POST, "/securecapita-api/v1/customers/**").hasAuthority("CREATE:CUSTOMER")
+                                // UPDATE
+                                .requestMatchers(PUT, "/securecapita-api/v1/users/**").hasAuthority("UPDATE:USER")
+                                .requestMatchers(PUT, "/securecapita-api/v1/customers/**").hasAuthority("UPDATE:CUSTOMER")
+                                .requestMatchers(PATCH, "/securecapita-api/v1/users/**").hasAuthority("UPDATE:USER").requestMatchers(PUT, "/securecapita-api/v1/users/**").hasAuthority("UPDATE:USER")
+                                .requestMatchers(PATCH, "/securecapita-api/v1/customers/**").hasAuthority("UPDATE:CUSTOMER")
+                                // DELETE
                                 .requestMatchers(DELETE, "/securecapita-api/v1/users/**").hasAuthority("DELETE:USER")
                                 .requestMatchers(DELETE, "/securecapita-api/v1/customers/**").hasAuthority("DELETE:CUSTOMER")
                                 .anyRequest().authenticated())
