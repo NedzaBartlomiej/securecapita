@@ -2,7 +2,6 @@ package pl.bartlomiej.securecapita.common.exception.utils;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +19,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
 public class ExceptionUtils {
-    public static void processException(Exception exception, HttpServletRequest ignoredRequest, HttpServletResponse response) {
+    public static void processException(Exception exception, HttpServletResponse response) {
         switch (exception) {
             case AccessDeniedException ignoredAccessDeniedException -> writeResponse(response,
                     getErrorHttpResponse(FORBIDDEN, "You don't have the required permissions."));
@@ -34,6 +33,7 @@ public class ExceptionUtils {
                 writeResponse(response,
                         getErrorHttpResponse(INTERNAL_SERVER_ERROR, "An error occured, try again."));
                 log.error("Unhandled error message: {}, Exception {}", exception.getMessage(), exception.getClass().getName());
+                log.error("Cause: {}, Stack Trace: {}", exception.getCause(), exception.getStackTrace());
             }
         }
     }

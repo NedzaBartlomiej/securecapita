@@ -12,6 +12,6 @@ import static pl.bartlomiej.securecapita.common.exception.utils.ExceptionUtils.p
 public class AuthenticationEntryPointImpl implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) {
-        processException(exception, request, response);
+        processException(exception, response);
     }
 }

@@ -1,22 +1,22 @@
 package pl.bartlomiej.securecapita.common.exception.utils;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import pl.bartlomiej.securecapita.common.exception.AccountVerificationException;
-import pl.bartlomiej.securecapita.common.exception.ApiException;
-import pl.bartlomiej.securecapita.common.exception.ResourceNotFoundException;
-import pl.bartlomiej.securecapita.common.exception.UserNotFoundException;
+import pl.bartlomiej.securecapita.common.exception.*;
 import pl.bartlomiej.securecapita.common.model.HttpResponse;
 import pl.bartlomiej.securecapita.user.UserController;
+import pl.bartlomiej.securecapita.user.dto.UserAuthDto;
 
 import static java.util.Objects.requireNonNull;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import static org.springframework.http.HttpMethod.POST;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.*;
 
 @RestControllerAdvice
 public class RestControllerExceptionHandlerAdvice {
@@ -46,18 +46,33 @@ public class RestControllerExceptionHandlerAdvice {
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<HttpResponse> handleUserNotFoundException(UserNotFoundException exception) {
-        HttpResponse httpResponse = ExceptionUtils.getErrorHttpResponse(NOT_FOUND, exception.getMessage());
-        httpResponse.add(
-                linkTo(UserController.class)
-                        .withRel("createUser")
-                        .withType(POST.name()));
-        return ResponseEntity.status(NOT_FOUND)
-                .body(httpResponse);
+        return ResponseEntity.status(NOT_FOUND).body(
+                ExceptionUtils.getErrorHttpResponse(NOT_FOUND, exception.getMessage()).add(
+                        linkTo(UserController.class)
+                                .withRel("createUser")
+                                .withType(POST.name()))
+        );
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<HttpResponse> handleResourceNotFoundException(ResourceNotFoundException exception) {
         return ResponseEntity.status(NOT_FOUND).body(
                 ExceptionUtils.getErrorHttpResponse(NOT_FOUND, exception.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidRefreshTokenException.class)
+    public ResponseEntity<HttpResponse> handleInvalidRefreshTokenException(InvalidRefreshTokenException exception) {
+        return ResponseEntity.status(UNAUTHORIZED).body(
+                ExceptionUtils.getErrorHttpResponse(UNAUTHORIZED, exception.getMessage()).add(
+                        linkTo(methodOn(UserController.class)
+                                .authenticateUser(new UserAuthDto(null, null)))
+                                .withRel("authenticate")
+                                .withType(POST.name()))
+        );
+    }
+
+    @ExceptionHandler(JWTVerificationException.class)
+    public void handleJWTVerificationException(JWTVerificationException exception, HttpServletResponse response) {
+        ExceptionUtils.processException(exception, response);
     }
 }

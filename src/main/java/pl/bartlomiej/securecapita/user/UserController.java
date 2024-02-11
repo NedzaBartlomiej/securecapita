@@ -1,5 +1,7 @@
 package pl.bartlomiej.securecapita.user;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -95,6 +97,30 @@ public class UserController {
             @PathVariable("id") Long id, @PathVariable("code") String code) {
         return getAuthResponse(
                 userService.verifyMfaUser(id, code));
+    }
+
+    // ACCESS TOKEN REFRESHING
+
+    @GetMapping("/auth/access-token")
+    public ResponseEntity<HttpResponse> getNewAccessToken(HttpServletRequest request) {
+        String refreshToken = jwtTokenService.getTokenFromRequest(request);
+        User user = userService.getUserByEmail(
+                        jwtTokenService.getSubjectFromRequestToken(refreshToken))
+                .orElseThrow(UserNotFoundException::new);
+        String accessToken = jwtTokenService.refreshAccessToken(refreshToken, user);
+        return ResponseEntity.ok(
+                HttpResponse.builder()
+                        .timestamp(now().toString())
+                        .statusCode(OK.value())
+                        .httpStatus(OK)
+                        .message("Access token refreshed successfully.")
+                        .data(of(
+                                "user", UserDtoMapper.mapToReadDto(user),
+                                "accessToken", accessToken,
+                                "refreshToken", refreshToken
+                        ))
+                        .build()
+        );
     }
 
     // RESET PASSWORD FEATURE

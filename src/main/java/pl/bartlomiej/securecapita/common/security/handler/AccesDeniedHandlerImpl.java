@@ -12,6 +12,6 @@ import static pl.bartlomiej.securecapita.common.exception.utils.ExceptionUtils.p
 public class AccesDeniedHandlerImpl implements AccessDeniedHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException exception) {
-        processException(exception, request, response);
+        processException(exception, response);
     }
 }
