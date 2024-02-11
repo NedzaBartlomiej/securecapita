@@ -1,13 +1,17 @@
 package pl.bartlomiej.securecapita.common.exception.utils;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import pl.bartlomiej.securecapita.common.exception.*;
+import pl.bartlomiej.securecapita.common.exception.AccountVerificationException;
+import pl.bartlomiej.securecapita.common.exception.ApiException;
+import pl.bartlomiej.securecapita.common.exception.ResourceNotFoundException;
+import pl.bartlomiej.securecapita.common.exception.UserNotFoundException;
 import pl.bartlomiej.securecapita.common.model.HttpResponse;
 import pl.bartlomiej.securecapita.user.UserController;
 import pl.bartlomiej.securecapita.user.dto.UserAuthDto;
@@ -60,19 +64,20 @@ public class RestControllerExceptionHandlerAdvice {
                 ExceptionUtils.getErrorHttpResponse(NOT_FOUND, exception.getMessage()));
     }
 
-    @ExceptionHandler(InvalidRefreshTokenException.class)
-    public ResponseEntity<HttpResponse> handleInvalidRefreshTokenException(InvalidRefreshTokenException exception) {
+    @ExceptionHandler(JWTVerificationException.class)
+    public void handleJWTVerificationException(JWTVerificationException exception, HttpServletResponse response) {
+        ExceptionUtils.processException(exception, response);
+        System.out.println(exception.getClass());
+    }
+
+    @ExceptionHandler(TokenExpiredException.class)
+    public ResponseEntity<HttpResponse> handleTokenExpiredException() {
         return ResponseEntity.status(UNAUTHORIZED).body(
-                ExceptionUtils.getErrorHttpResponse(UNAUTHORIZED, exception.getMessage()).add(
+                ExceptionUtils.getErrorHttpResponse(UNAUTHORIZED, "Token is expired, you need to authenticate.").add(
                         linkTo(methodOn(UserController.class)
                                 .authenticateUser(new UserAuthDto(null, null)))
                                 .withRel("authenticate")
                                 .withType(POST.name()))
         );
-    }
-
-    @ExceptionHandler(JWTVerificationException.class)
-    public void handleJWTVerificationException(JWTVerificationException exception, HttpServletResponse response) {
-        ExceptionUtils.processException(exception, response);
     }
 }

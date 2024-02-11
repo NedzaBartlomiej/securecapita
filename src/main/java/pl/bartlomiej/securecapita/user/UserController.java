@@ -1,7 +1,6 @@
 package pl.bartlomiej.securecapita.user;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -107,7 +106,7 @@ public class UserController {
         User user = userService.getUserByEmail(
                         jwtTokenService.getSubjectFromRequestToken(refreshToken))
                 .orElseThrow(UserNotFoundException::new);
-        String accessToken = jwtTokenService.refreshAccessToken(refreshToken, user);
+        String accessToken = jwtTokenService.createAccessToken(UserDtoMapper.mapToSecurityDto(user));
         return ResponseEntity.ok(
                 HttpResponse.builder()
                         .timestamp(now().toString())

@@ -4,14 +4,10 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
-import pl.bartlomiej.securecapita.common.exception.InvalidRefreshTokenException;
-import pl.bartlomiej.securecapita.user.User;
-import pl.bartlomiej.securecapita.user.dto.UserDtoMapper;
 import pl.bartlomiej.securecapita.user.dto.UserSecurityDto;
 
 import java.util.Arrays;
@@ -34,7 +30,7 @@ public class JwtTokenService {
     private static final String TOKEN_AUDIENCE = "SECURECAPITA";
     private static final String TOKEN_AUTHORITIES = "authorities";
     private static final Date ACCESS_TOKEN_EXPIRATION_DATE = new Date(currentTimeMillis() + 1_800_000L);
-    private static final Date REFRESH_TOKEN_EXPIRATION_DATE = new Date(currentTimeMillis() + 432_000_000L);
+    private static final Date REFRESH_TOKEN_EXPIRATION_DATE = new Date(currentTimeMillis() + 1L);
     @Value(value = "${jwt.secret}")
     private String secret;
 
@@ -57,14 +53,6 @@ public class JwtTokenService {
                 .withExpiresAt(REFRESH_TOKEN_EXPIRATION_DATE)
                 .withSubject(userSecurityDto.getUsername())
                 .sign(HMAC512(secret.getBytes()));
-    }
-
-    public String refreshAccessToken(String refreshToken, User user) {
-        if (!this.isTokenValid(this.getSubjectFromRequestToken(refreshToken), refreshToken)) {
-            throw new InvalidRefreshTokenException();
-        } else {
-            return this.createAccessToken(UserDtoMapper.mapToSecurityDto(user));
-        }
     }
 
     public boolean isTokenValid(String email, String token) {
