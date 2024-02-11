@@ -49,6 +49,7 @@ public class VerificationService {
                         .user(user)
                         .verificationType(EMAIL_VERIFICATION.name())
                         .verificationIdentifier(identifier).build());
+                log.info(this.buildVerificationUrl(identifier, EMAIL_VERIFICATION.name()));
                 //todo emailService.sendEmail(
                 // user.getFirstName(),
                 // user.getEmail(),
@@ -65,7 +66,7 @@ public class VerificationService {
                         .verificationIdentifier(identifier)
                         .expirationDate(LocalDateTime.now().plusHours(24))
                         .build());
-                log.info(this.buildVerificationUrl(identifier));
+                log.info(this.buildVerificationUrl(identifier, RESET_PASSWORD_VERIFICATION.name()));
                 //todo emailService.sendEmail(
                 // user.getFirstName(),
                 // user.getEmail(),
@@ -88,6 +89,11 @@ public class VerificationService {
                 .orElseThrow(AccountVerificationException::new);
     }
 
+    public User verifyEmailVerificationIdentifier(String identifier) {
+        return verificationRepository.getUserByVerificationIdentifier(identifier)
+                .orElseThrow(AccountVerificationException::new);
+    }
+
     public Optional<User> getUserByVerificationIdentifier(String identifier) {
         return verificationRepository.getUserByVerificationIdentifier(identifier);
     }
@@ -104,10 +110,15 @@ public class VerificationService {
         return verificationRepository.isVerifiedByVerificationIdentifier(identifier);
     }
 
-    private String buildVerificationUrl(String identifier) {
+    private String buildVerificationUrl(String identifier, String verificationType) {
+        final String USERS_ROOT_RESOURCE_PATH = "/securecapita-api/v1/users";
+        final String VERIFICATION_ROOT_PATH =
+                "/verifications/" +
+                        verificationType.replace("_", "-").toLowerCase() +
+                        "/" + identifier;
         return ServletUriComponentsBuilder
-                .fromCurrentRequestUri()
-                .path("/" + identifier)
+                .fromCurrentContextPath()
+                .path(USERS_ROOT_RESOURCE_PATH + VERIFICATION_ROOT_PATH)
                 .build()
                 .toUriString();
     }

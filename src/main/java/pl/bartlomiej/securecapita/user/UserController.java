@@ -14,6 +14,7 @@ import pl.bartlomiej.securecapita.user.dto.*;
 import pl.bartlomiej.securecapita.verification.Verification;
 import pl.bartlomiej.securecapita.verification.VerificationService;
 
+import static java.lang.Boolean.TRUE;
 import static java.time.LocalDateTime.now;
 import static java.util.Map.of;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -31,20 +32,6 @@ public class UserController {
     private final VerificationService verificationService;
     private final JwtTokenService jwtTokenService;
 
-    @PostMapping
-    public ResponseEntity<HttpResponse> createUser(@RequestBody @Valid UserCreateDto user) {
-        UserReadDto userReadDto = userService.create(user);
-        return ResponseEntity.status(CREATED).body(
-                HttpResponse.builder()
-                        .timestamp(now().toString())
-                        .statusCode(CREATED.value())
-                        .httpStatus(CREATED)
-                        .message("User registered.")
-                        .data(of("user", this.addUserSelfRelLink(userReadDto)))
-                        .build()
-        );
-    }
-
     @GetMapping("/{id}")
     public ResponseEntity<HttpResponse> getAuthenticatedUser(@PathVariable Long id, Authentication authentication) {
         User authenticatedUser = userService.getUserByEmail(authentication.getName())
@@ -60,6 +47,33 @@ public class UserController {
                     }
                 })
                 .orElseThrow(UserNotFoundException::new);
+    }
+
+    // CREATE ACCOUNT FEATURE
+
+    @PostMapping
+    public ResponseEntity<HttpResponse> createUser(@RequestBody @Valid UserCreateDto user) {
+        UserReadDto userReadDto = userService.create(user);
+        return ResponseEntity.status(CREATED).body(
+                HttpResponse.builder()
+                        .timestamp(now().toString())
+                        .statusCode(CREATED.value())
+                        .httpStatus(CREATED)
+                        .message("User registered. Verification Email sent.")
+                        .data(of("user", this.addUserSelfRelLink(userReadDto)))
+                        .build()
+        );
+    }
+
+    @PatchMapping("/verifications/email-verification/{identifier}")
+    public ResponseEntity<HttpResponse> verifyEmailVerificationLink(@PathVariable String identifier) {
+        User linkOwner = verificationService.verifyEmailVerificationIdentifier(identifier);
+        userService.updateUserIsEnabled(linkOwner.getId(), true);
+        verificationService.deleteVerificationByVerificationIdentifier(identifier);
+        String message = linkOwner.getIsEnabled().equals(TRUE)
+                ? "Account is already verified."
+                : "Account verified successfully.";
+        return ResponseEntity.ok(getOkResponseWithMessage(message));
     }
 
     // AUTHENTICATION FEATURE
@@ -82,8 +96,6 @@ public class UserController {
         return getAuthResponse(
                 userService.verifyMfaUser(id, code));
     }
-
-    //todo: {id}/auth/verifications/email_verification/{key} POST
 
     // RESET PASSWORD FEATURE
 

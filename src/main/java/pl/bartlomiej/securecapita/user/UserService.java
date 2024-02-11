@@ -49,14 +49,6 @@ public class UserService {
         }
     }
 
-    public Optional<User> getUserByEmail(String email) {
-        return userRepository.getUserByEmail(email);
-    }
-
-    public Optional<User> getUserById(Long id) {
-        return userRepository.getUserById(id);
-    }
-
     public User verifyMfaUser(Long id, String code) {
         LocalDateTime codeExpirationDate = verificationService
                 .getExpirationDateByVerificationIdentifier(code);
@@ -94,5 +86,17 @@ public class UserService {
         if (!password.equals(passwordConfirmation))
             throw new ApiException("Provided passwords do not match.", UNPROCESSABLE_ENTITY);
         return user;
+    }
+
+    public Optional<User> getUserByEmail(String email) {
+        return userRepository.getUserByEmail(email);
+    }
+
+    public Optional<User> getUserById(Long id) {
+        return userRepository.getUserById(id);
+    }
+
+    public void updateUserIsEnabled(Long id, boolean value) {
+        userRepository.updateUserIsEnabled(id, value);
     }
 }
